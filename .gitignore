@@ -1,0 +1,4 @@
+# Ignore any local override files
+*.local.yaml
+*.secret.yaml
+/tmp/

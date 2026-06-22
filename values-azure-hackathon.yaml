@@ -1,0 +1,66 @@
+environment: hackathon
+datadog:
+  enabled: false
+  clusterName: neuro-san-hackathon
+
+# One Deployment per OpenAI key; replicasPerKey pods each.
+# 4 keys = 4 pods total, all selected by the shared neuro-san-svc service.
+openaiKeys:
+  - id: "1"
+replicasPerKey: 1
+
+image:
+  ui:
+    repository: neurosanhackathonacr.azurecr.io/neuro-san/neuro-san-ui
+    tag: "0.0.2"
+    pullPolicy: IfNotPresent
+  neuroSan:
+    repository: neurosanhackathonacr.azurecr.io/neuro-san/neuro-san-studio
+    tag: "0.0.1"
+    pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "2000Mi"
+  limits:
+    memory: "3000Mi"
+
+# Azure Workload Identity
+# Fill in UAMI_CLIENT_ID after running: az identity show -g <RG> -n neuro-san-wi --query clientId -o tsv
+azure:
+  workloadIdentityClientId: "31036678-9d77-4e78-840b-93fba4233a90"
+  keyVaultUrl: "https://neuro-san-hackathon-kv.vault.azure.net"
+
+ingress:
+  enabled: true
+  # Backend and frontend get separate NGINX controllers -> separate public IPs
+  neuroSan:
+    className: nginx-backend
+  ui:
+    className: nginx-frontend
+
+# Fill these in AFTER the cluster is up and NGINX controllers have their public IPs:
+#   kubectl -n ingress-nginx-backend get svc ingress-nginx-backend-controller
+#   kubectl -n ingress-nginx-frontend get svc ingress-nginx-frontend-controller
+NEURO_SAN_SERVER_URL: "https://neurosanhackathon-api.eastus.cloudapp.azure.com"
+AGENT_ALLOW_CORS_HEADERS: "true"
+AGENT_RESERVATIONS_EXTERNAL_STORAGE_CHECK_PERIOD_SECONDS: "30"
+AGENT_EXTERNAL_SERVER_URL: "https://neurosanhackathon-api.eastus.cloudapp.azure.com"
+AGENT_SESSION_REQUIRE_HTTPS: "false"
+
+# Azure Blob Storage for shared session state across all 4 key-pods
+AGENT_EXTERNAL_RESERVATIONS_STORAGE: "neuro_san_studio.azure_blob_reservations_storage.AzureBlobReservationsStorage"
+AGENT_RESERVATIONS_BLOB_CONTAINER: "neuro-san-reservations"
+
+AGENT_NETWORK_DESIGNER_USE_RESERVATIONS: true
+AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS: 604800
+AGENT_NETWORK_DESIGNER_PROGRESS_STYLE: connectivity
+AGENT_MAX_CONCURRENT_REQUESTS: "50"
+LEAF_LOG_SENSITIVE: "true"
+
+llmConfigEnabled: false
+llmConfigVariant: cluster
+
+langfuse:
+  enabled: false
+  host: ""

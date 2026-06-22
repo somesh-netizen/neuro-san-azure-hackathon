@@ -1,0 +1,167 @@
+{{- range .Values.openaiKeys }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuro-san-key-{{ .id }}
+  namespace: neuro-san-{{ $.Values.environment }}
+  labels:
+    app: neuro-san
+    keyId: {{ .id | quote }}
+spec:
+  replicas: {{ $.Values.replicasPerKey }}
+  selector:
+    matchLabels:
+      app: neuro-san
+      keyId: {{ .id | quote }}
+  template:
+    metadata:
+      labels:
+        app: neuro-san
+        keyId: {{ .id | quote }}
+    spec:
+      serviceAccount: unileaf-account
+      serviceAccountName: unileaf-account
+      imagePullSecrets:
+        - name: acr-pull-secret
+      containers:
+        - name: neuro-san
+          image: "{{ $.Values.image.neuroSan.repository }}:{{ $.Values.image.neuroSan.tag }}"
+          imagePullPolicy: {{ $.Values.image.neuroSan.pullPolicy }}
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: OPENAI_API_KEY
+                  name: openai-key-{{ .id }}
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_STORAGE_CONNECTION_STRING
+                  name: azure-storage
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          envFrom:
+            - configMapRef:
+                name: neuro-san-env
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 6
+          resources:
+            requests:
+              memory: {{ $.Values.resources.requests.memory }}
+            limits:
+              memory: {{ $.Values.resources.limits.memory }}
+          {{- if $.Values.llmConfigEnabled }}
+          volumeMounts:
+            - name: llm-config
+              mountPath: {{ include "neuro-san.app-source" $ }}/config/llm_config.hocon
+              subPath: llm_config.hocon
+              readOnly: true
+      volumes:
+        - name: llm-config
+          configMap:
+            name: neuro-san-llm-config
+          {{- end }}
+---
+{{- end }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui-node
+  name: ui-node-deployment
+  namespace: neuro-san-{{ .Values.environment }}
+spec:
+  progressDeadlineSeconds: 360
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: ui-node
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ui-node
+    spec:
+      automountServiceAccountToken: true
+      imagePullSecrets:
+        - name: acr-pull-secret
+      containers:
+      - env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: OPENAI_API_KEY
+              name: openai-key-1
+        - name: ENABLE_AUTHENTICATION
+          value: "false"
+        - name: NEXTAUTH_URL
+          value: "http://localhost:3000"
+        - name: NEXTAUTH_SECRET
+          value: "hackathon-secret"
+        - name: AUTH0_CLIENT_ID
+          value: "disabled"
+        - name: AUTH0_CLIENT_SECRET
+          value: "disabled"
+        - name: AUTH0_DOMAIN
+          value: "disabled"
+        - name: AUTH0_ISSUER
+          value: "disabled"
+        - name: LOGO_SERVICE_TOKEN
+          value: "disabled"
+        envFrom:
+        - configMapRef:
+            name: ui-node-env
+        image: "{{ .Values.image.ui.repository }}:{{ .Values.image.ui.tag }}"
+        imagePullPolicy: IfNotPresent
+        name: ui-node-server
+        resources:
+          limits:
+            cpu: "1"
+            memory: 6Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: unileaf-account
+      serviceAccountName: unileaf-account
+      terminationGracePeriodSeconds: 30

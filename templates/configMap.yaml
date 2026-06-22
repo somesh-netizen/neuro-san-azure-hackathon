@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: neuro-san-env
+  namespace: neuro-san-{{ .Values.environment }}
+data:
+  K8S_CFG_PARAMS_MOUNT: /config
+  LOGXI: '*=DBG'
+  LOGXI_FORMAT: happy,maxcol=1024
+  RUN_DIR: /tmp
+  NEURO_SAN_SERVER_URL: {{ quote .Values.NEURO_SAN_SERVER_URL }}
+  AGENT_MANIFEST_FILE: "{{ include "neuro-san.app-source" . }}/registries/manifest.hocon {{ include "neuro-san.app-source" . }}/registries/manifest_multiuser_overlay.hocon"
+  AGENT_ALLOW_CORS_HEADERS: {{ quote .Values.AGENT_ALLOW_CORS_HEADERS }}
+  AGENT_TRACING_METADATA_ENV_VARS: "POD_NAME POD_NAMESPACE POD_IP NODE_NAME"
+  AGENT_RESERVATIONS_EXTERNAL_STORAGE_CHECK_PERIOD_SECONDS: {{ quote .Values.AGENT_RESERVATIONS_EXTERNAL_STORAGE_CHECK_PERIOD_SECONDS }}
+  LEAF_LOG_SENSITIVE: {{ quote .Values.LEAF_LOG_SENSITIVE }}
+  AGENT_SESSION_REQUIRE_HTTPS: {{ quote .Values.AGENT_SESSION_REQUIRE_HTTPS }}
+  AGENT_EXTERNAL_SERVER_URL: {{ quote .Values.AGENT_EXTERNAL_SERVER_URL }}
+  AGENT_EXTERNAL_RESERVATIONS_STORAGE: {{ quote .Values.AGENT_EXTERNAL_RESERVATIONS_STORAGE }}
+  AGENT_RESERVATIONS_BLOB_CONTAINER: {{ quote .Values.AGENT_RESERVATIONS_BLOB_CONTAINER }}
+  {{- if .Values.AGENT_NETWORK_DESIGNER_USE_RESERVATIONS }}
+  AGENT_NETWORK_DESIGNER_USE_RESERVATIONS: {{ quote .Values.AGENT_NETWORK_DESIGNER_USE_RESERVATIONS }}
+  {{- end }}
+  {{- if .Values.AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS }}
+  AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS: {{ quote .Values.AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS }}
+  {{- end }}
+  {{- if .Values.AGENT_NETWORK_DESIGNER_PROGRESS_STYLE }}
+  AGENT_NETWORK_DESIGNER_PROGRESS_STYLE: {{ quote .Values.AGENT_NETWORK_DESIGNER_PROGRESS_STYLE }}
+  {{- end }}
+  {{- if .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
+  AGENT_MAX_CONCURRENT_REQUESTS: {{ quote .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
+  {{- end }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ui-node-env
+  namespace: neuro-san-{{ .Values.environment }}
+data:
+  K8S_CFG_PARAMS_MOUNT: /config
+  LOGXI: '*=DBG'
+  LOGXI_FORMAT: happy,maxcol=1024
+  IP_PORT: 0.0.0.0:3000
+  DEBUG: '-send,-compression,-babel'
+  MD_SERVER_URL: "NOT_USED"
+  NEURO_SAN_SERVER_URL: {{ quote .Values.NEURO_SAN_SERVER_URL }}
+  SUPPORT_EMAIL_ADDRESS: "NeuroAISupport@cognizant.com"
+  BUILD_TARGET: neuroSan
+  NEXT_PUBLIC_ENABLE_AUTHENTICATION: "false"

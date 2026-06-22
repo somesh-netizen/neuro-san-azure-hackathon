@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuro-san-svc
+  namespace: neuro-san-{{ .Values.environment }}
+  labels:
+    app: neuro-san
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: neuro-san
+  # ClientIP affinity: one client IP always routes to the same pod (one user -> one pod -> one session)
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800   # 3 hours — covers a full hackathon session
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-node-service
+  namespace: neuro-san-{{ .Values.environment }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: ui-node
+  sessionAffinity: None
