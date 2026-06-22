@@ -15,6 +15,7 @@ spec:
         selector:
           dnsNames:
             - neurosanhackathon.eastus.cloudapp.azure.com
+            - hackathon.evolution.ml
       - http01:
           ingress:
             ingressClassName: nginx-backend

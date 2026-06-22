@@ -131,7 +131,7 @@ spec:
         - name: ENABLE_AUTHENTICATION
           value: "false"
         - name: NEXTAUTH_URL
-          value: "http://localhost:3000"
+          value: "https://hackathon.evolution.ml"
         - name: NEXTAUTH_SECRET
           value: "hackathon-secret"
         - name: AUTH0_CLIENT_ID

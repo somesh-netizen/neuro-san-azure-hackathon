@@ -16,7 +16,7 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
     # CORS — allow the frontend to call the backend
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://neurosanhackathon.eastus.cloudapp.azure.com"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://hackathon.evolution.ml,https://neurosanhackathon.eastus.cloudapp.azure.com"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, Accept, user_id, DNT"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
@@ -48,7 +48,7 @@ metadata:
   namespace: neuro-san-{{ .Values.environment }}
   annotations:
     {{- include "neuro-san.nginx.frontend.annotations" . | nindent 4 }}
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   labels:
     app: {{ include "neuro-san.name" . }}
@@ -56,9 +56,20 @@ spec:
   ingressClassName: {{ .Values.ingress.ui.className }}
   tls:
     - hosts:
+        - hackathon.evolution.ml
         - neurosanhackathon.eastus.cloudapp.azure.com
       secretName: neuro-san-ui-tls
   rules:
+    - host: hackathon.evolution.ml
+      http:
+        paths:
+          - backend:
+              service:
+                name: ui-node-service
+                port:
+                  number: 3000
+            path: /
+            pathType: Prefix
     - host: neurosanhackathon.eastus.cloudapp.azure.com
       http:
         paths:
