@@ -7,13 +7,31 @@ metadata:
     {{- include "neuro-san.nginx.backend.annotations" . | nindent 4 }}
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    # Cookie-based sticky sessions so one user always hits the same backend pod/key
+    # Cookie-based sticky sessions: first request routed by ewma (least latency),
+    # cookie set, all subsequent turns for that user go to the same pod.
+    # affinity-mode=balanced: NGINX keeps session counts even across pods.
+    # load-balance=ewma: new sessions go to the pod with the lowest response-time
+    # estimate (exponentially weighted moving average), not blind round-robin.
+    # This means a pod already slow with queued LLM requests stops receiving new
+    # sessions automatically — a fast idle pod absorbs them instead.
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/affinity-mode: "balanced"
+    nginx.ingress.kubernetes.io/load-balance: "ewma"
     nginx.ingress.kubernetes.io/session-cookie-name: "NSROUTE"
     nginx.ingress.kubernetes.io/session-cookie-max-age: "10800"
     nginx.ingress.kubernetes.io/session-cookie-samesite: "None"
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
+    # Timeouts: LLM sub-agent chains can take 90-150s at high load.
+    # Default 60s proxy-read-timeout cuts SSE streams mid-response → empty stream body.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    # SSE requires buffering OFF — default ON causes NGINX to hold events in a
+    # buffer before forwarding, adding latency and causing stalls under high load.
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # Keep TCP connections warm to pods — avoids handshake overhead on every LLM call
+    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "64"
+    nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "120"
     # CORS — allow the frontend to call the backend
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://hackathon.evolution.ml,https://neurosanhackathon.eastus.cloudapp.azure.com"

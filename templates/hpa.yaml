@@ -1,0 +1,33 @@
+{{- if .Values.hpa.enabled }}
+{{- range .Values.openaiKeys }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: neuro-san-hpa-{{ .id }}
+  namespace: neuro-san-{{ $.Values.environment }}
+  labels:
+    app: neuro-san
+    keyId: {{ .id | quote }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neuro-san-key-{{ .id }}
+  minReplicas: {{ $.Values.hpa.minReplicas }}
+  maxReplicas: {{ $.Values.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.hpa.targetCpuPct }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.hpa.targetMemoryPct }}
+---
+{{- end }}
+{{- end }}

@@ -3,20 +3,47 @@ datadog:
   enabled: false
   clusterName: neuro-san-hackathon
 
-# One Deployment per OpenAI key; replicasPerKey pods each.
-# 4 keys = 4 pods total, all selected by the shared neuro-san-svc service.
+# One Deployment per Azure OpenAI key; replicasPerKey pods each.
+# 12 keys × 1 pod each = 12 pods total.
+# Each pod uses a distinct Azure OpenAI resource (distinct endpoint + key).
+# Each resource has a 10M TPM quota → Total quota: 12 × 10M = 120M TPM.
+#
+# Key → Resource mapping:
+#  1  → 25083-mqryb3vb-southcentralus      (existing)
+#  2  → azure-openai-cognizant-ai-lab       (existing)
+#  3  → 2508345-2051-resource               (existing)
+#  4  → 25083-mqry1k59-northcentralus       (existing)
+#  5  → 25083-mqqgolnd-centralus            (existing)
+#  6  → 25083-mqqgg6gs-swedencentral        (existing)
+#  7  → 25083-mqszfieo-westus               (new)
+#  8  → 25083-mqt02653-westeurope           (new)
+#  9  → 25083-mqsztdx2-southeastasia        (new)
+#  10 → 25083-mqt06fkz-francecentral        (new)
+#  11 → 25083-mqszostk-westus3              (new)
+#  12 → 25083-mqszy2vy-southindia           (new)
 openaiKeys:
   - id: "1"
+  - id: "2"
+  - id: "3"
+  - id: "4"
+  - id: "5"
+  - id: "6"
+  - id: "7"
+  - id: "8"
+  - id: "9"
+  - id: "10"
+  - id: "11"
+  - id: "12"
 replicasPerKey: 1
 
 image:
   ui:
     repository: neurosanhackathonacr.azurecr.io/neuro-san/neuro-san-ui
-    tag: "0.0.2"
+    tag: "0.0.3"
     pullPolicy: IfNotPresent
   neuroSan:
     repository: neurosanhackathonacr.azurecr.io/neuro-san/neuro-san-studio
-    tag: "0.0.1"
+    tag: "0.0.3"
     pullPolicy: IfNotPresent
 
 resources:
@@ -55,10 +82,18 @@ AGENT_RESERVATIONS_BLOB_CONTAINER: "neuro-san-reservations"
 AGENT_NETWORK_DESIGNER_USE_RESERVATIONS: true
 AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS: 604800
 AGENT_NETWORK_DESIGNER_PROGRESS_STYLE: connectivity
-AGENT_MAX_CONCURRENT_REQUESTS: "50"
+AGENT_MAX_CONCURRENT_REQUESTS: "250"
 LEAF_LOG_SENSITIVE: "true"
 
-llmConfigEnabled: false
+# Azure OpenAI shared config (same deployment name and API version for all pods).
+# Each pod gets its own AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT from its K8s secret.
+OPENAI_API_VERSION: "2025-04-01-preview"
+AZURE_OPENAI_DEPLOYMENT_NAME: "gpt-5-mini"
+
+hpa:
+  enabled: false
+
+llmConfigEnabled: true
 llmConfigVariant: cluster
 
 langfuse:

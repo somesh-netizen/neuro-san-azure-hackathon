@@ -31,6 +31,24 @@ data:
   {{- if .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
   AGENT_MAX_CONCURRENT_REQUESTS: {{ quote .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
   {{- end }}
+  {{- if .Values.OPENAI_API_VERSION }}
+  OPENAI_API_VERSION: {{ quote .Values.OPENAI_API_VERSION }}
+  {{- end }}
+  {{- if .Values.AZURE_OPENAI_DEPLOYMENT_NAME }}
+  AZURE_OPENAI_DEPLOYMENT_NAME: {{ quote .Values.AZURE_OPENAI_DEPLOYMENT_NAME }}
+  {{- end }}
+
+{{- if .Values.llmConfigEnabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: neuro-san-llm-config
+  namespace: neuro-san-{{ .Values.environment }}
+data:
+  llm_config.hocon: |
+    {"llm_config": {"model_name": "azure-gpt-5.4", "deployment_name": "{{ .Values.AZURE_OPENAI_DEPLOYMENT_NAME | default "gpt-5.4" }}", "max_tokens": 16384}}
+{{- end }}
 
 ---
 apiVersion: v1

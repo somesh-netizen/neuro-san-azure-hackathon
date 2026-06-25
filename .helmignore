@@ -1,0 +1,12 @@
+# Ignore load test directory — contains large Python binaries that exceed Helm's 5MB file limit
+loadtest/
+
+# Ignore session context files
+CONTEXT.md
+SESSION_SUMMARY.md
+
+# Ignore git and editor files
+.git/
+.gitignore
+*.local.yaml
+*.secret.yaml

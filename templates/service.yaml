@@ -18,11 +18,12 @@ spec:
       targetPort: 8080
   selector:
     app: neuro-san
-  # ClientIP affinity: one client IP always routes to the same pod (one user -> one pod -> one session)
-  sessionAffinity: ClientIP
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: 10800   # 3 hours — covers a full hackathon session
+  # sessionAffinity: None — NGINX ingress controller talks directly to pod IPs
+  # via the Endpoints API (bypasses kube-proxy entirely). Cookie-based stickiness
+  # is handled at the NGINX layer (NSROUTE cookie, affinity-mode=balanced+ewma).
+  # Keeping ClientIP here would pin ALL internal cluster traffic (health checks,
+  # other pods) to one backend based on the NGINX pod's source IP — wrong behaviour.
+  sessionAffinity: None
 
 ---
 apiVersion: v1

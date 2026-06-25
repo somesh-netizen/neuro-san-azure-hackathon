@@ -8,7 +8,9 @@ metadata:
     app: neuro-san
     keyId: {{ .id | quote }}
 spec:
+  {{- if not $.Values.hpa.enabled }}
   replicas: {{ $.Values.replicasPerKey }}
+  {{- end }}
   selector:
     matchLabels:
       app: neuro-san
@@ -28,10 +30,20 @@ spec:
           image: "{{ $.Values.image.neuroSan.repository }}:{{ $.Values.image.neuroSan.tag }}"
           imagePullPolicy: {{ $.Values.image.neuroSan.pullPolicy }}
           env:
+            - name: AZURE_OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_OPENAI_API_KEY
+                  name: openai-key-{{ .id }}
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  key: OPENAI_API_KEY
+                  key: AZURE_OPENAI_API_KEY
+                  name: openai-key-{{ .id }}
+            - name: AZURE_OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: AZURE_OPENAI_ENDPOINT
                   name: openai-key-{{ .id }}
             - name: AZURE_STORAGE_CONNECTION_STRING
               valueFrom:
@@ -59,27 +71,45 @@ spec:
                 name: neuro-san-env
           ports:
             - containerPort: 8080
+          # startupProbe gates the pod for up to 100 s (20 + 16×5) while the
+          # Python process initialises. Once it passes, readinessProbe takes over.
+          # This prevents NGINX from routing traffic to a pod before it is truly
+          # ready, which was the root cause of cold-start 503 spikes.
+          startupProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 16   # 20 + 16×5 = 100 s max before pod is killed
           readinessProbe:
             httpGet:
               path: /readyz
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 0   # startupProbe already handled the wait
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 6
+            failureThreshold: 3      # 30 s of failure before marked unready
           livenessProbe:
             httpGet:
               path: /livez
               port: 8080
-            initialDelaySeconds: 20
+            initialDelaySeconds: 0   # startupProbe guards this too
             periodSeconds: 20
             timeoutSeconds: 10
             failureThreshold: 6
           resources:
             requests:
               memory: {{ $.Values.resources.requests.memory }}
+              {{- if $.Values.resources.requests.cpu }}
+              cpu: {{ $.Values.resources.requests.cpu }}
+              {{- end }}
             limits:
               memory: {{ $.Values.resources.limits.memory }}
+              {{- if $.Values.resources.limits.cpu }}
+              cpu: {{ $.Values.resources.limits.cpu }}
+              {{- end }}
           {{- if $.Values.llmConfigEnabled }}
           volumeMounts:
             - name: llm-config
@@ -126,7 +156,12 @@ spec:
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
-              key: OPENAI_API_KEY
+              key: AZURE_OPENAI_API_KEY
+              name: openai-key-1
+        - name: AZURE_OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: AZURE_OPENAI_API_KEY
               name: openai-key-1
         - name: ENABLE_AUTHENTICATION
           value: "false"
