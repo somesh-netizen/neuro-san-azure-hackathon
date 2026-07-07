@@ -21,22 +21,53 @@ KNOWN_AGENTS = [
 DEFAULT_AGENT = os.getenv("AGENT", "agent_network_designer")
 
 # ── Timeouts (seconds) ────────────────────────────────────────────────────────
-# agent_network_designer takes 2-5 min per request (5-10 internal LLM calls).
-# CHAT_TIMEOUT must exceed the longest expected response or every request times out.
-CHAT_TIMEOUT = int(os.getenv("CHAT_TIMEOUT", "360"))   # 6 min — covers 5-min designs
+# CHAT_TIMEOUT is a SILENCE/read timeout for the streamed response, not a total cap.
+# Raised 360→600 so we MEASURE the true completion-time tail under load instead of
+# calling a slow-but-still-streaming design a "failure" at 6 min. Matches the ingress
+# proxy-read-timeout (600s). A design that keeps emitting progress is never cut.
+CHAT_TIMEOUT = int(os.getenv("CHAT_TIMEOUT", "600"))
 FAST_TIMEOUT = int(os.getenv("FAST_TIMEOUT", "10"))
 
-# ── LLM model + pricing (used by metrics.py for cost estimation) ──────────────
-# Azure OpenAI deployment: gpt-5.4 (deployment name: gpt-5.4, model: gpt-5.4-2026-03-05)
-# Pricing is per 1M tokens (USD) — update if model or pricing changes.
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4")
+# ── Think time (closed-loop pacing between a participant's turns) ─────────────
+# Applied AFTER a turn's answer arrives, before the next turn. NOT a compute cap.
+THINK_TIME_MIN = int(os.getenv("THINK_TIME_MIN", "120"))   # 2 min
+THINK_TIME_MAX = int(os.getenv("THINK_TIME_MAX", "240"))   # 4 min
 
-# ── Token quota (Azure AI Foundry hard ceiling) ───────────────────────────────
-# 12 pods × 10M TPM each (separate Azure OpenAI resources) = 120M TPM total.
-# agent_network_designer uses ~55k-80k tokens per design (confirmed in soak test).
-# For 2000 hackathon participants × 5 turns × ~65k avg (compounding) = ~650M tokens.
-# 120M quota will sustain ~2h at 2000 VUs; soak test measures burn rate precisely.
-TOKEN_QUOTA_TOTAL = int(os.getenv("TOKEN_QUOTA_TOTAL", "120000000"))  # 12 × 10M
+# ── LLM model + pricing (used by metrics.py for cost estimation) ──────────────
+# The Azure deployment is named "gpt-5-mini" but the underlying model is gpt-4o-mini
+# (verified via az: model=gpt-4o-mini, version 2024-07-18). Pricing key must match the
+# REAL model or cost is overstated ~25-33× (gpt-4o rates). gpt-4o-mini = $0.15/$0.60 /1M.
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# ── Token quota (aggregate Azure OpenAI deployment capacity) ──────────────────
+# 11 working keys × 30M TPM each = 330M TPM (key-9 dropped: no model deployment in
+# southeastasia). Tokens are NOT the bottleneck — a CPU-bound pod burns <10M TPM — so
+# 330M is ~50× headroom. This ceiling is for burn-rate % context, not a real risk.
+TOKEN_QUOTA_TOTAL = int(os.getenv("TOKEN_QUOTA_TOTAL", "330000000"))  # 11 × 30M
+
+# ── The 11 Azure OpenAI resources behind the pods (key | resource | resource-group) ──
+# Used by metrics.get_per_key_tpm() to pull per-key token usage from Azure Monitor.
+# key 9 (southeastasia) intentionally absent — dropped from the deployment.
+AZURE_OPENAI_RESOURCES = [
+    ("1",  "25083-mqryb3vb-southcentralus", "rg-2508345-2922"),
+    ("2",  "azure-openai-cognizant-ai-lab", "neuro-san-studio-marketplace-rg"),
+    ("3",  "2508345-2051-resource",         "MC_neuro-san-studio-marketplace-rg_neuro-san-hackathon-aks_eastus"),
+    ("4",  "25083-mqry1k59-northcentralus", "rg-2508345-4576_ai"),
+    ("5",  "25083-mqqgolnd-centralus",      "rg-2508345-3558"),
+    ("6",  "25083-mqqgg6gs-swedencentral",  "rg-2508345-4576_ai"),
+    ("7",  "25083-mqszfieo-westus",         "rg-2508345-3004"),
+    ("8",  "25083-mqt02653-westeurope",     "rg-2508345-7536"),
+    ("10", "25083-mqt06fkz-francecentral",  "rg-2508345-5993"),
+    ("11", "25083-mqszostk-westus3",        "rg-2508345-4759"),
+    ("12", "25083-mqszy2vy-southindia",     "rg-2508345-5101"),
+]
+PER_KEY_TPM_LIMIT = int(os.getenv("PER_KEY_TPM_LIMIT", "30000000"))  # 30M each
+
+# ── Backend node sizing (for per-pod CPU% math: 1 pod per D16s_v3 node) ───────
+BACKEND_NODE_VCPU    = int(os.getenv("BACKEND_NODE_VCPU", "16"))       # D16s_v3
+BACKEND_MEM_LIMIT_MI = int(os.getenv("BACKEND_MEM_LIMIT_MI", "49152"))  # 48Gi limit (raised from 6Gi)
+UI_CPU_LIMIT         = float(os.getenv("UI_CPU_LIMIT", "2"))           # UI 2-core limit
+UI_MEM_LIMIT_MI      = int(os.getenv("UI_MEM_LIMIT_MI", "6144"))       # UI 6Gi limit
 
 # ── Azure Blob metrics (optional — needs az login with storage access) ────────
 BLOB_STORAGE_ACCOUNT = os.getenv("BLOB_STORAGE_ACCOUNT", "")

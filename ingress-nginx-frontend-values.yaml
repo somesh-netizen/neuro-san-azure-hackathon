@@ -1,0 +1,23 @@
+# Values overlay for the SEPARATELY-managed `ingress-nginx-frontend` Helm release
+# (chart ingress-nginx 4.15.1, namespace ingress-nginx-frontend).
+# Frontend only needs HA — no rate limiting (the UI serves the app shell, not the
+# design endpoint).
+#
+# Apply (merge over current values):
+#   helm get values ingress-nginx-frontend -n ingress-nginx-frontend -o yaml > /tmp/inf-current.yaml
+#   helm upgrade ingress-nginx-frontend ingress-nginx/ingress-nginx --version 4.15.1 \
+#     -n ingress-nginx-frontend \
+#     -f /tmp/inf-current.yaml -f ingress-nginx-frontend-values.yaml
+controller:
+  replicaCount: 2
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/instance: ingress-nginx-frontend

@@ -21,10 +21,13 @@ metadata:
     nginx.ingress.kubernetes.io/session-cookie-max-age: "10800"
     nginx.ingress.kubernetes.io/session-cookie-samesite: "None"
     nginx.ingress.kubernetes.io/session-cookie-secure: "true"
-    # Timeouts: LLM sub-agent chains can take 90-150s at high load.
-    # Default 60s proxy-read-timeout cuts SSE streams mid-response → empty stream body.
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # Timeouts: LLM sub-agent chains can take 90-150s at high load, and a heavy
+    # design can go silent for minutes between events. The old 300s was BELOW the
+    # app's CHAT_TIMEOUT (360s), so NGINX cut long designs mid-stream → the
+    # "empty stream body"/504 errors seen in the soak logs. 600s gives headroom
+    # above any real design.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
     # SSE requires buffering OFF — default ON causes NGINX to hold events in a
     # buffer before forwarding, adding latency and causing stalls under high load.
@@ -32,6 +35,22 @@ metadata:
     # Keep TCP connections warm to pods — avoids handshake overhead on every LLM call
     nginx.ingress.kubernetes.io/upstream-keepalive-connections: "64"
     nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "120"
+    # Per-user throttle on the DESIGN endpoint only. The zones (design_req/design_conn)
+    # are defined in the backend controller's http-snippet, keyed on the user_id HEADER
+    # — NOT client IP — so 2500 employees behind a shared corporate NAT are not throttled
+    # as one. This protects the fixed 11-pod fleet from a single user's retry storms /
+    # parallel tabs; it does NOT smooth the aggregate arrival wave (that's the wave plan).
+    #   limit_req  burst=2 nodelay  → 1 design submission every 30s/user (rate=2r/m),
+    #                                 with a 2-request cushion for a double-click
+    #   limit_conn 2                → at most 2 concurrent design streams per user
+    # Returns 429 (a clean "slow down", not a 5xx). Requires allowSnippetAnnotations +
+    # annotations-risk-level=Critical on the controller (set in its values file) — that
+    # release MUST be upgraded BEFORE this chart or the annotation is rejected.
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      limit_req  zone=design_req burst=2 nodelay;
+      limit_conn design_conn 2;
+      limit_req_status 429;
+      limit_conn_status 429;
     # CORS — allow the frontend to call the backend
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://hackathon.evolution.ml,https://neurosanhackathon.eastus.cloudapp.azure.com"

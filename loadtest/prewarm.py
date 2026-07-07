@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """
-Pre-warm all 12 neuro-san pods before opening the hackathon.
+Pre-warm every running neuro-san backend pod before opening the hackathon.
 
-Run 5-10 minutes before participants get the URL:
+Pod count is discovered dynamically (label app=neuro-san), so this warms whatever
+is live — currently 11 pods (key-9 was dropped: its Azure resource had no model
+deployment). No edit needed when the pod set changes.
+
+Run at T-30 min, before participants get the URL (see EVENT_DAY_PLAN.md):
     python3 loadtest/prewarm.py
 
 What it does for each pod:
@@ -15,7 +19,7 @@ What it does for each pod:
                                   OpenAI; subsequent real requests reuse this conn
   5. Reports readyz / list / chat status, token count, and elapsed time per pod
 
-All 12 pods are warmed in parallel (~2-4 min total depending on LLM latency).
+All discovered pods are warmed in parallel (~2-4 min total depending on LLM latency).
 """
 
 import argparse

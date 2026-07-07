@@ -11,6 +11,15 @@ spec:
   {{- if not $.Values.hpa.enabled }}
   replicas: {{ $.Values.replicasPerKey }}
   {{- end }}
+  # Each key-Deployment is a single pod pinned to its own dedicated node.
+  # maxSurge:0 means the old pod is removed before the new one schedules, so a
+  # rolling upgrade reuses the freed node instead of demanding 11 spare D16s at
+  # once. Brief per-pod gap (~startup) is fine during a maintenance window.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: neuro-san
@@ -21,6 +30,23 @@ spec:
         app: neuro-san
         keyId: {{ .id | quote }}
     spec:
+      {{- if $.Values.backendNodepool }}
+      # Pin backend pods to the dedicated D16s_v3 pool (AKS labels nodes with
+      # agentpool=<poolname>). Keeps them off the small system/UI/ingress pool.
+      nodeSelector:
+        agentpool: {{ $.Values.backendNodepool }}
+      {{- end }}
+      # Belt-and-suspenders on top of the 12-vCPU request: prefer never to place
+      # two backend pods on the same host even if scheduling gets creative.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: neuro-san
+                topologyKey: kubernetes.io/hostname
       serviceAccount: unileaf-account
       serviceAccountName: unileaf-account
       imagePullSecrets:
@@ -91,14 +117,13 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3      # 30 s of failure before marked unready
-          livenessProbe:
-            httpGet:
-              path: /livez
-              port: 8080
-            initialDelaySeconds: 0   # startupProbe guards this too
-            periodSeconds: 20
-            timeoutSeconds: 10
-            failureThreshold: 6
+          # NO livenessProbe — deliberately removed. Under high concurrent SSE load the
+          # single event loop couldn't answer /livez in time, so the kubelet SIGKILL'd
+          # healthy-but-busy pods (10 restarts each in the 2700-VU test), destroying all
+          # in-flight designs and cascading into 502s. Readiness alone sheds load
+          # gracefully (pod marked NotReady when jammed → NGINX stops routing → drains →
+          # recovers) without ever killing the pod. A true deadlock is now handled by a
+          # manual rollout-restart rather than an over-eager auto-kill.
           resources:
             requests:
               memory: {{ $.Values.resources.requests.memory }}
@@ -133,7 +158,7 @@ metadata:
   namespace: neuro-san-{{ .Values.environment }}
 spec:
   progressDeadlineSeconds: 360
-  replicas: 1
+  replicas: {{ .Values.uiReplicas | default 1 }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -186,11 +211,24 @@ spec:
         imagePullPolicy: IfNotPresent
         name: ui-node-server
         resources:
+          requests:
+            cpu: "500m"      # was unset — give the scheduler a real reservation
+            memory: 1Gi
           limits:
-            cpu: "1"
+            cpu: "2"         # raised from 1 for the concurrent page-load burst
             memory: 6Gi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
+      # Spread the UI replicas across nodes so one node loss doesn't drop the shell.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: ui-node
+                topologyKey: kubernetes.io/hostname
       dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/os: linux

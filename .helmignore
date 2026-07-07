@@ -10,3 +10,10 @@ SESSION_SUMMARY.md
 .gitignore
 *.local.yaml
 *.secret.yaml
+
+# Non-chart artifacts (keep the Helm release secret under 1MB)
+reports-from-pod/
+reports/
+*.md
+*.log
+*.json

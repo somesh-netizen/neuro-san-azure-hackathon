@@ -1,0 +1,46 @@
+# Values overlay for the SEPARATELY-managed `ingress-nginx-backend` Helm release
+# (chart ingress-nginx 4.15.1, namespace ingress-nginx-backend).
+# This is NOT part of the neuro-san chart — apply it against that release directly.
+#
+# Apply (merge over the release's current values so existing tuning is preserved):
+#   helm get values ingress-nginx-backend -n ingress-nginx-backend -o yaml > /tmp/inb-current.yaml
+#   helm upgrade ingress-nginx-backend ingress-nginx/ingress-nginx --version 4.15.1 \
+#     -n ingress-nginx-backend \
+#     -f /tmp/inb-current.yaml -f ingress-nginx-backend-values.yaml
+#
+# MUST be applied BEFORE `helm upgrade neuro-san` — the app chart's backend Ingress
+# now carries a configuration-snippet annotation that the controller will reject
+# unless allowSnippetAnnotations is already true here.
+controller:
+  # ── HA: kill the single-replica-on-one-node SPOF ────────────────────────────
+  replicaCount: 2
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/instance: ingress-nginx-backend
+
+  # ── Enable snippet annotations (needed for the per-user rate limit) ──────────
+  allowSnippetAnnotations: true
+  config:
+    # ingress-nginx >=1.9 gates snippet annotations behind this risk level.
+    annotations-risk-level: "Critical"
+    # Define the rate/conn zones once, at http level, keyed on the user_id header.
+    # $design_user resolves to the user_id ONLY for streaming_chat requests; for any
+    # other path (or a request with no user_id header) it is empty, and nginx does
+    # not account empty keys — so /list, /connectivity and health checks are exempt.
+    # Keyed on the HEADER, not $binary_remote_addr, so corporate NAT is not throttled.
+    http-snippet: |
+      map $request_uri $design_user {
+          ~*streaming_chat  $http_user_id;
+          default           "";
+      }
+      # rate=2r/m = 1 design submission every 30 seconds per user.
+      limit_req_zone  $design_user zone=design_req:20m rate=2r/m;
+      limit_conn_zone $design_user zone=design_conn:20m;

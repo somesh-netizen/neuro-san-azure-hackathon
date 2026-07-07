@@ -1,0 +1,17 @@
+[2026-06-25 21:31:26,709] IN-HVWWDJ56T9/INFO/locust.main: Starting Locust 2.44.4
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/locust.runners: Shape test starting.
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/locust.runners: Shape worker starting
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/locust.runners: Shape test updating to 5 users at 5.00 spawn rate
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/neuro-san-loadtest: Load test started — host: https://neurosanhackathon-api.eastus.cloudapp.azure.com  label: smoke
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/neuro-san-loadtest: Thresholds: {'error_rate_pct': 5.0, 'p95_latency_ms': 300000, 'list_success_rate_pct': 97.0, 'connectivity_success_pct': 97.0, 'chat_success_rate_pct': 97.0, 'max_429_count': 10, 'min_rps_efficiency_pct': 75.0, 'max_token_quota_pct': 80.0}
+[2026-06-25 21:31:26,713] IN-HVWWDJ56T9/INFO/locust.runners: Ramping to 5 users at a rate of 5.00 per second
+[2026-06-25 21:31:26,714] IN-HVWWDJ56T9/INFO/locust.runners: All users spawned: {"BrowseUser": 1, "BurstUser": 1, "ChatUser": 2, "HealthCheckUser": 0, "PowerUser": 1} (5 total users)
+[2026-06-25 21:31:56,802] IN-HVWWDJ56T9/INFO/locust.runners: Shape test updating to 10 users at 5.00 spawn rate
+[2026-06-25 21:31:56,802] IN-HVWWDJ56T9/INFO/locust.runners: Ramping to 10 users at a rate of 5.00 per second
+[2026-06-25 21:31:56,803] IN-HVWWDJ56T9/INFO/locust.runners: All users spawned: {"BrowseUser": 2, "BurstUser": 1, "ChatUser": 4, "HealthCheckUser": 1, "PowerUser": 2} (10 total users)
+[2026-06-25 21:33:57,293] IN-HVWWDJ56T9/INFO/locust.runners: Shape test updating to 0 users at 10.00 spawn rate
+[2026-06-25 21:33:57,293] IN-HVWWDJ56T9/INFO/locust.runners: Ramping to 0 users at a rate of 10.00 per second
+[2026-06-25 21:33:57,294] IN-HVWWDJ56T9/INFO/locust.runners: All users spawned: {"BrowseUser": 0, "BurstUser": 0, "ChatUser": 0, "HealthCheckUser": 0, "PowerUser": 0} (0 total users)
+[2026-06-25 21:34:27,433] IN-HVWWDJ56T9/INFO/locust.runners: Shape test stopping
+[2026-06-25 21:34:27,457] IN-HVWWDJ56T9/INFO/locust.main: Shape test completed, shutting down
+[2026-06-25 21:34:27,610] IN-HVWWDJ56T9/INFO/locust.main: Shutting down (exit code 0)

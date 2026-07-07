@@ -31,6 +31,9 @@ data:
   {{- if .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
   AGENT_MAX_CONCURRENT_REQUESTS: {{ quote .Values.AGENT_MAX_CONCURRENT_REQUESTS }}
   {{- end }}
+  {{- if .Values.AGENT_HTTP_SERVER_INSTANCES }}
+  AGENT_HTTP_SERVER_INSTANCES: {{ quote .Values.AGENT_HTTP_SERVER_INSTANCES }}
+  {{- end }}
   {{- if .Values.OPENAI_API_VERSION }}
   OPENAI_API_VERSION: {{ quote .Values.OPENAI_API_VERSION }}
   {{- end }}

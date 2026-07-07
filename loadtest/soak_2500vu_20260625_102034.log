@@ -1,0 +1,186 @@
+
+==================================================================
+  HACKATHON SOAK TEST — 90-min sessions, agent_network_designer
+==================================================================
+  Host        : https://neurosanhackathon-api.eastus.cloudapp.azure.com
+  Pods        : 12
+  VUs         : 2500 concurrent active participants
+  Duration    : 120 min (24 snapshots every 5 min)
+  Ramp        : 3 min at 14 user/sec
+  Think time  : 5-15 min between turns (realistic reading pace)
+
+  SESSION MODEL:
+  • Each VU = 1 participant with a FIXED user_id for the full session
+  • NGINX sticky cookie pins that user to ONE pod for 90 min
+  • chat_context passed and grows each turn:
+      Turn 1 (fresh design) → ~5k-15k tokens
+      Turn 3 (refine)       → ~20k-40k tokens (history included)
+      Turn 6 (deep refine)  → ~50k-80k tokens
+  • Azure Blob: read + write on EVERY turn (not just session start)
+
+  BOTTLENECKS TRACKED:
+  1. Token quota burn (compounds as sessions age) → ETA to 10M
+  2. Per-turn token escalation (turn 1 vs 3 vs 6 cost)
+  3. Pod memory growth (growing context in RAM per pinned session)
+  4. NGINX hot-pod (sticky imbalance → one pod saturates first)
+  5. Azure Blob IOPS (grows with session depth, not just count)
+  6. p95 latency drift (slow as pod memory/queue fills)
+==================================================================
+
+  Pod spec: cpu — req / — lim  | mem 2000Mi req / 3000Mi lim
+  LLM slots: 50/pod × 12 pods = 600 total concurrent AI calls
+
+  Ramping to 2500 VUs at 14 user/sec (~3 min)...
+
+──────────────────────────────────────────────────────────────────
+  t=5min  [10:25:43]  VUs: 2500/2500  RPS: 13.1  p50: 1s  p95: 122s  err: 88.0%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :            0 / 120,000,000 (0.0%)  burn: 0 tok/min  ETA exhaustion: 120000000 min
+  MEM     : fb-9xljn: 223Mi (7.3%)  76-fr92j: 223Mi (7.3%)  5b-k6g6v: 223Mi (7.3%)  8d-bj2hn: 227Mi (7.4%)  f6-fpd8d: 223Mi (7.3%)
+  NODES   : 1-vmss000000: cpu 10%  mem 17%  |  1-vmss000001: cpu 9%  mem 17%  |  1-vmss000002: cpu 10%  mem 18%
+  ERRORS  :
+    [1201] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+    [ 519] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [ 473] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [   6] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): gateway timeout (504) — response 
+
+──────────────────────────────────────────────────────────────────
+  t=10min  [10:30:50]  VUs: 2500/2500  RPS: 0.0  p50: 3s  p95: 3s  err: 0.0%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :        1,199 / 120,000,000 (0.0%)  burn: 119 tok/min  ETA exhaustion: 1011991 min
+  TURNS   : t2: 1,199 tok (1 completions)
+  MEM     : fb-9xljn: 475Mi (15.5%)  76-fr92j: 485Mi (15.8%)  5b-k6g6v: 482Mi (15.7%)  8d-bj2hn: 481Mi (15.7%)  f6-fpd8d: 553Mi (18.0%)
+  NODES   : 1-vmss000000: cpu 102%  mem 24%  |  1-vmss000001: cpu 102%  mem 23%  |  1-vmss000002: cpu 102%  mem 25%
+
+──────────────────────────────────────────────────────────────────
+  t=15min  [10:35:56]  VUs: 2500/2500  RPS: 4.5  p50: 4s  p95: 111s  err: 56.7%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      381,680 / 120,000,000 (0.3%)  burn: 25,078 tok/min  ETA exhaustion: 4770 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,199 tok (1 completions)
+           ↳ context growth: turn 2 costs 0.1× turn 1 tokens
+  MEM     : fb-9xljn: 530Mi (17.3%)  76-fr92j: 534Mi (17.4%)  5b-k6g6v: 536Mi (17.4%)  8d-bj2hn: 497Mi (16.2%)  df-5rf7d: 546Mi (17.8%)
+  NODES   : 1-vmss000000: cpu 102%  mem 21%  |  1-vmss000001: cpu 101%  mem 20%  |  1-vmss000002: cpu 102%  mem 27%
+  ERRORS  :
+    [ 231] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [ 217] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+    [ 132] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [  36] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): service unavailable (503) — LLM s
+    [  34] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+──────────────────────────────────────────────────────────────────
+  t=20min  [10:41:03]  VUs: 2500/2500  RPS: 5.3  p50: 24s  p95: 125s  err: 58.7%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      381,680 / 120,000,000 (0.3%)  burn: 18,776 tok/min  ETA exhaustion: 6371 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,199 tok (1 completions)
+           ↳ context growth: turn 2 costs 0.1× turn 1 tokens
+  MEM     : fb-9xljn: 284Mi (9.2%)  76-fr92j: 216Mi (7.0%)  5b-k6g6v: 518Mi (16.9%)  8d-bj2hn: 208Mi (6.8%)  f6-fpd8d: 439Mi (14.3%)
+  NODES   : 1-vmss000000: cpu 102%  mem 24%  |  1-vmss000001: cpu 102%  mem 22%  |  1-vmss000002: cpu 100%  mem 18%
+  ERRORS  :
+    [ 461] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [ 241] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [ 104] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [  37] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl
+    [   3] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): empty stream body
+
+──────────────────────────────────────────────────────────────────
+  t=25min  [10:46:10]  VUs: 2500/2500  RPS: 2.5  p50: 10s  p95: 102s  err: 37.6%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      382,618 / 120,000,000 (0.3%)  burn: 15,041 tok/min  ETA exhaustion: 7953 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,068 tok (2 completions)
+           ↳ context growth: turn 2 costs 0.0× turn 1 tokens
+  MEM     : fb-9xljn: 433Mi (14.1%)  76-fr92j: 440Mi (14.3%)  5b-k6g6v: 203Mi (6.6%)  8d-bj2hn: 358Mi (11.7%)  f6-fpd8d: 502Mi (16.3%)
+  NODES   : 1-vmss000000: cpu 100%  mem 21%  |  1-vmss000001: cpu 100%  mem 22%  |  1-vmss000002: cpu 96%  mem 24%
+  ERRORS  :
+    [ 114] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [ 101] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [  25] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [  16] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl
+    [  10] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): empty stream body
+
+──────────────────────────────────────────────────────────────────
+  t=31min  [10:51:16]  VUs: 2500/2500  RPS: 3.5  p50: 19s  p95: 100s  err: 57.7%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      389,046 / 120,000,000 (0.3%)  burn: 12,736 tok/min  ETA exhaustion: 9392 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,224 tok (7 completions)
+           ↳ context growth: turn 2 costs 0.1× turn 1 tokens
+  MEM     : fb-9xljn: 583Mi (19.0%)  76-fr92j: 530Mi (17.3%)  5b-k6g6v: 422Mi (13.7%)  8d-bj2hn: 483Mi (15.7%)  f6-fpd8d: 214Mi (7.0%)
+  NODES   : 1-vmss000000: cpu 99%  mem 21%  |  1-vmss000001: cpu 100%  mem 22%  |  1-vmss000002: cpu 103%  mem 26%
+  ERRORS  :
+    [ 230] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [ 222] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [  41] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [  36] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): empty stream body
+    [  35] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl
+
+──────────────────────────────────────────────────────────────────
+  t=36min  [10:56:24]  VUs: 2500/2500  RPS: 5.1  p50: 5s  p95: 96s  err: 68.0%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      393,590 / 120,000,000 (0.3%)  burn: 11,039 tok/min  ETA exhaustion: 10835 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,176 tok (10 completions)  |  t3: 1,353 tok (1 completions)
+           ↳ context growth: turn 3 costs 0.1× turn 1 tokens
+  MEM     : b4-hgm7k: 139Mi (4.5%)
+  NODES   : 1-vmss000000: cpu 44%  mem 11%  |  1-vmss000001: cpu 6%  mem 12%  |  1-vmss000002: cpu 21%  mem 13%
+  ERRORS  :
+    [ 264] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [ 201] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): service unavailable (503) — LLM s
+    [ 187] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [  96] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): service unavailable (503) — LLM s
+    [  91] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+
+──────────────────────────────────────────────────────────────────
+  t=41min  [11:01:30]  VUs: 2500/2500  RPS: 1.9  p50: 1s  p95: 113s  err: 94.1%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      395,751 / 120,000,000 (0.3%)  burn: 9,704 tok/min  ETA exhaustion: 12325 min
+  TURNS   : t1: 23,780 tok (16 completions)  |  t2: 1,153 tok (11 completions)  |  t3: 1,293 tok (2 completions)
+           ↳ context growth: turn 3 costs 0.1× turn 1 tokens
+  MEM     : fb-9xljn: 418Mi (13.6%)  76-fr92j: 439Mi (14.3%)  5b-k6g6v: 210Mi (6.8%)  8d-bj2hn: 418Mi (13.6%)  f6-fpd8d: 508Mi (16.5%)
+  NODES   : 1-vmss000000: cpu 62%  mem 19%  |  1-vmss000001: cpu 92%  mem 20%  |  1-vmss000002: cpu 86%  mem 22%
+  ERRORS  :
+    [ 201] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): service unavailable (503) — LLM s
+    [ 109] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): service unavailable (503) — LLM s
+    [ 106] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+    [  29] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl
+    [  21] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+
+──────────────────────────────────────────────────────────────────
+  t=46min  [11:06:36]  VUs: 2500/2500  RPS: 4.3  p50: 31s  p95: 110s  err: 64.8%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      455,993 / 120,000,000 (0.4%)  burn: 9,937 tok/min  ETA exhaustion: 12030 min
+  TURNS   : t1: 22,732 tok (17 completions)  |  t2: 2,543 tok (19 completions)  |  t3: 2,539 tok (8 completions)  |  t4: 918 tok (1 completions)
+           ↳ context growth: turn 4 costs 0.0× turn 1 tokens
+  MEM     : 76-fr92j: 530Mi (17.3%)  5b-k6g6v: 395Mi (12.9%)  8d-bj2hn: 488Mi (15.9%)  df-5rf7d: 479Mi (15.6%)  69-26cnx: 464Mi (15.1%)
+  NODES   : 1-vmss000000: cpu 86%  mem 19%  |  1-vmss000001: cpu 62%  mem 17%  |  1-vmss000002: cpu 94%  mem 20%
+  ERRORS  :
+    [ 322] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [ 184] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): empty stream body
+    [ 162] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [  46] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl
+    [  34] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): turn 3 → 502: <html>
+<head><titl
+
+──────────────────────────────────────────────────────────────────
+  t=51min  [11:11:42]  VUs: 2500/2500  RPS: 4.1  p50: 1s  p95: 113s  err: 89.7%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      457,479 / 120,000,000 (0.4%)  burn: 8,971 tok/min  ETA exhaustion: 13325 min
+  TURNS   : t1: 22,732 tok (17 completions)  |  t2: 2,543 tok (19 completions)  |  t3: 2,422 tok (9 completions)  |  t4: 918 tok (1 completions)
+           ↳ context growth: turn 4 costs 0.0× turn 1 tokens
+  MEM     : f6-fpd8d: 271Mi (8.8%)  b9-9hbdg: 538Mi (17.5%)  c6-mfrkf: 209Mi (6.8%)  cd-jjfxk: 341Mi (11.1%)  b4-hgm7k: 139Mi (4.5%)
+  NODES   : 1-vmss000000: cpu 14%  mem 13%  |  1-vmss000001: cpu 43%  mem 17%  |  1-vmss000002: cpu 8%  mem 14%
+  ERRORS  :
+    [ 285] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): service unavailable (503) — LLM s
+    [ 197] POST POST /api/v1/agent_network_designer/streaming_chat (turn 3+): service unavailable (503) — LLM s
+    [ 140] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+    [ 114] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+    [  64] POST POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 502: <html>
+<head><titl

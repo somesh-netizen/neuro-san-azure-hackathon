@@ -1,0 +1,69 @@
+
+==================================================================
+  HACKATHON SOAK TEST — 90-min sessions, agent_network_designer
+==================================================================
+  Host        : https://neurosanhackathon-api.eastus.cloudapp.azure.com
+  Pods        : 12
+  VUs         : 2500 concurrent active participants
+  Duration    : 120 min (24 snapshots every 5 min)
+  Ramp        : 21 min at 2 user/sec
+  Think time  : 5-15 min between turns (realistic reading pace)
+
+  SESSION MODEL:
+  • Each VU = 1 participant with a FIXED user_id for the full session
+  • NGINX sticky cookie pins that user to ONE pod for 90 min
+  • chat_context passed and grows each turn:
+      Turn 1 (fresh design) → ~5k-15k tokens
+      Turn 3 (refine)       → ~20k-40k tokens (history included)
+      Turn 6 (deep refine)  → ~50k-80k tokens
+  • Azure Blob: read + write on EVERY turn (not just session start)
+
+  BOTTLENECKS TRACKED:
+  1. Token quota burn (compounds as sessions age) → ETA to 10M
+  2. Per-turn token escalation (turn 1 vs 3 vs 6 cost)
+  3. Pod memory growth (growing context in RAM per pinned session)
+  4. NGINX hot-pod (sticky imbalance → one pod saturates first)
+  5. Azure Blob IOPS (grows with session depth, not just count)
+  6. p95 latency drift (slow as pod memory/queue fills)
+==================================================================
+
+  Pod spec: cpu — req / — lim  | mem 2000Mi req / 3000Mi lim
+  LLM slots: 200/pod × 12 pods = 2400 total concurrent AI calls
+
+  Ramping to 2500 VUs at 2 user/sec (~21 min)...
+
+──────────────────────────────────────────────────────────────────
+  t=5min  [11:48:34]  VUs: 612/2500  RPS: 0.5  p50: 2s  p95: 37s  err: 19.5%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      129,200 / 120,000,000 (0.1%)  burn: 25,840 tok/min  ETA exhaustion: 4639 min
+  TURNS   : t1: 21,533 tok (6 completions)
+  MEM     : fb-9xljn: 604Mi (19.7%)  76-fr92j: 698Mi (22.7%)  5b-k6g6v: 606Mi (19.7%)  8d-bj2hn: 541Mi (17.6%)  f6-fpd8d: 624Mi (20.3%)
+  NODES   : 1-vmss000000: cpu 102%  mem 26%  |  1-vmss000001: cpu 102%  mem 24%  |  1-vmss000002: cpu 102%  mem 28%
+  ERRORS  :
+    [  19] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [  12] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+
+──────────────────────────────────────────────────────────────────
+  t=10min  [12:08:31]  VUs: 1208/2500  RPS: 3.0  p50: 10s  p95: 81s  err: 45.2%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      278,632 / 120,000,000 (0.2%)  burn: 27,916 tok/min  ETA exhaustion: 4289 min
+  TURNS   : t1: 18,575 tok (15 completions)
+  MEM     : fb-9xljn: 241Mi (7.8%)  76-fr92j: 455Mi (14.8%)  5b-k6g6v: 235Mi (7.6%)  8d-bj2hn: 242Mi (7.9%)  f6-fpd8d: 237Mi (7.7%)
+  NODES   : 1-vmss000000: cpu 9%  mem 17%  |  1-vmss000001: cpu 9%  mem 18%  |  1-vmss000002: cpu 10%  mem 20%
+  ERRORS  :
+    [ 266] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body
+    [ 122] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+
+──────────────────────────────────────────────────────────────────
+  t=15min  [12:13:38]  VUs: 1818/2500  RPS: 7.5  p50: 5s  p95: 122s  err: 35.7%
+──────────────────────────────────────────────────────────────────
+  QUOTA   :      278,632 / 120,000,000 (0.2%)  burn: 18,459 tok/min  ETA exhaustion: 6486 min
+  TURNS   : t1: 18,575 tok (15 completions)
+  MEM     : fb-9xljn: 359Mi (11.7%)  76-fr92j: 687Mi (22.4%)  5b-k6g6v: 377Mi (12.3%)  8d-bj2hn: 352Mi (11.5%)  f6-fpd8d: 370Mi (12.0%)
+  NODES   : 1-vmss000000: cpu 102%  mem 21%  |  1-vmss000001: cpu 102%  mem 22%  |  1-vmss000002: cpu 100%  mem 24%
+  ERRORS  :
+    [ 308] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): service unavailable (503) — LLM s
+    [ 137] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): turn 1 → 502: <html>
+<head><titl
+    [  39] POST POST /api/v1/agent_network_designer/streaming_chat (turn 1+): empty stream body

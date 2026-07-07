@@ -93,6 +93,78 @@ class TurnTracker:
 turn_tracker = TurnTracker()
 
 
+class RateLimitTracker:
+    """Thread-safe counter for 429 (rate-limit) responses, keyed by user_id.
+
+    Lets the snapshot show total 429s AND how many distinct users hit the limit —
+    so you can confirm rate limiting is guarding against abuse (few users, many
+    hits) rather than blocking normal participants (many users, few hits each).
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._total = 0
+        self._by_user: dict[str, int] = defaultdict(int)
+
+    def record(self, user_id: str) -> None:
+        with self._lock:
+            self._total += 1
+            self._by_user[user_id] += 1
+
+    def snapshot(self) -> dict:
+        with self._lock:
+            top = sorted(self._by_user.items(), key=lambda x: -x[1])[:5]
+            return {
+                "total_429":      self._total,
+                "unique_users":   len(self._by_user),
+                "top_offenders":  top,   # [(user_id, count), ...]
+            }
+
+    def reset(self) -> None:
+        with self._lock:
+            self._total = 0
+            self._by_user = defaultdict(int)
+
+
+rate_limit_tracker = RateLimitTracker()
+
+
+class InFlightGauge:
+    """Thread-safe gauge of requests currently in flight, plus the running peak.
+
+    inc() on request start, dec() on completion. `current` = designs running RIGHT
+    NOW; `peak` = the highest concurrency seen so far this run.
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._current = 0
+        self._peak = 0
+
+    def inc(self) -> None:
+        with self._lock:
+            self._current += 1
+            if self._current > self._peak:
+                self._peak = self._current
+
+    def dec(self) -> None:
+        with self._lock:
+            self._current = max(0, self._current - 1)
+
+    @property
+    def current(self) -> int:
+        with self._lock:
+            return self._current
+
+    @property
+    def peak(self) -> int:
+        with self._lock:
+            return self._peak
+
+
+in_flight = InFlightGauge()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # COST ESTIMATION
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -108,13 +180,15 @@ _PRICING = {
     "claude-3-5-sonnet": {"input":  3.00, "output":  15.00},
     "claude-3-haiku":    {"input":  0.25, "output":   1.25},
 }
-_DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+# The live deployment resolves to gpt-4o-mini — default to it so cost isn't
+# silently computed at gpt-4o ($5/$15) rates (~25-33× overstatement).
+_DEFAULT_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
 def estimate_cost(input_tokens: int, output_tokens: int,
                   model: str | None = None) -> dict:
     model   = model or _DEFAULT_MODEL
-    prices  = _PRICING.get(model, _PRICING["gpt-4o"])
+    prices  = _PRICING.get(model, _PRICING["gpt-4o-mini"])
     c_in    = input_tokens  / 1_000_000 * prices["input"]
     c_out   = output_tokens / 1_000_000 * prices["output"]
     return {
@@ -213,6 +287,120 @@ def get_pod_metrics(namespace: str) -> list[dict]:
         if len(parts) >= 3:
             pods.append({"name": parts[0], "cpu": parts[1], "mem": parts[2]})
     return pods
+
+
+# ── Per-pod usage with % (CPU vs node vCPU, MEM vs limit) ────────────────────
+
+def _cpu_to_millicores(s: str) -> float:
+    s = s.strip()
+    try:
+        if s.endswith("m"):
+            return float(s[:-1])
+        return float(s) * 1000.0        # bare cores → millicores
+    except ValueError:
+        return 0.0
+
+
+def _mem_to_mi(s: str) -> float:
+    s = s.strip()
+    try:
+        if s.endswith("Mi"):
+            return float(s[:-2])
+        if s.endswith("Gi"):
+            return float(s[:-2]) * 1024.0
+        if s.endswith("Ki"):
+            return float(s[:-2]) / 1024.0
+        return 0.0
+    except ValueError:
+        return 0.0
+
+
+def get_pod_usage(namespace: str, label: str,
+                  node_vcpu: int, mem_limit_mi: int) -> list[dict]:
+    """Per-pod CPU% and MEM% for pods matching `label`.
+
+    CPU% is against the whole node's vCPU (backend runs 1 pod per D16s_v3 node, so
+    node vCPU is the pod's effective budget). MEM% is against the pod's mem limit.
+    Returns [{name, cpu_m, cpu_pct, mem_mi, mem_pct}, ...] sorted by CPU desc.
+    """
+    out = _kube("top", "pods", f"-n={namespace}", f"-l={label}", "--no-headers")
+    node_m = max(node_vcpu * 1000, 1)
+    pods = []
+    for line in out.strip().splitlines():
+        parts = line.split()
+        if len(parts) >= 3:
+            cpu_m  = _cpu_to_millicores(parts[1])
+            mem_mi = _mem_to_mi(parts[2])
+            pods.append({
+                "name":    parts[0],
+                "cpu_m":   round(cpu_m),
+                "cpu_pct": round(cpu_m / node_m * 100, 1),
+                "mem_mi":  round(mem_mi),
+                "mem_pct": round(mem_mi / max(mem_limit_mi, 1) * 100, 1),
+            })
+    return sorted(pods, key=lambda p: -p["cpu_pct"])
+
+
+# ── Per-key token usage from Azure Monitor (per Azure OpenAI resource) ───────
+
+def _az_metric_total(resource_id: str, metric: str, timespan: str) -> float | None:
+    try:
+        r = subprocess.run(
+            ["az", "monitor", "metrics", "list", "--resource", resource_id,
+             "--metric", metric, "--interval", "PT1M", "--aggregation", "Total",
+             "--timespan", timespan, "--output", "json"],
+            capture_output=True, text=True, timeout=25,
+        )
+    except Exception:          # az missing, timeout, etc. — non-fatal
+        return None
+    if r.returncode != 0:
+        return None
+    try:
+        data = json.loads(r.stdout)
+        vals = [pt.get("total") for ts in data.get("value", [])
+                for pt in ts.get("timeseries", [{}])[0].get("data", [])
+                if pt.get("total") is not None]
+        return sum(vals) if vals else 0.0
+    except Exception:
+        return None
+
+
+def get_per_key_tpm(resources: list, timespan: str = "PT5M") -> dict:
+    """Best-effort per-key token usage from Azure Monitor (prompt + generated).
+
+    `resources` = [(key_id, resource_name, resource_group), ...]. Returns
+    {key_id: total_tokens_in_window} or {} if az is unavailable. Queried in
+    parallel (one thread per resource). Non-fatal — the snapshot degrades to
+    "n/a" if this returns empty (e.g. metric name differs or no az login).
+    """
+    if not resources:
+        return {}
+    try:
+        sub = subprocess.run(["az", "account", "show", "--query", "id", "-o", "tsv"],
+                             capture_output=True, text=True, timeout=10)
+    except Exception:          # az not installed (e.g. in-pod) — degrade to n/a
+        return {}
+    if sub.returncode != 0:
+        return {}
+    sub_id = sub.stdout.strip()
+
+    def _one(entry):
+        key_id, name, rg = entry
+        rid = (f"/subscriptions/{sub_id}/resourceGroups/{rg}"
+               f"/providers/Microsoft.CognitiveServices/accounts/{name}")
+        prompt = _az_metric_total(rid, "ProcessedPromptTokens", timespan)
+        gen    = _az_metric_total(rid, "GeneratedTokens", timespan)
+        if prompt is None and gen is None:
+            return key_id, None
+        return key_id, round((prompt or 0) + (gen or 0))
+
+    from concurrent.futures import ThreadPoolExecutor
+    result: dict = {}
+    with ThreadPoolExecutor(max_workers=min(len(resources), 11)) as pool:
+        for key_id, val in pool.map(_one, resources):
+            if val is not None:
+                result[key_id] = val
+    return result
 
 
 # ── Deployment vertical config (CPU/memory requests + limits) ────────────────

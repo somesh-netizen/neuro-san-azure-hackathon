@@ -1,0 +1,2934 @@
+{
+  "test_type": "hackathon_soak",
+  "timestamp": "2026-06-25T04:10:11.805523+00:00",
+  "host": "https://neurosanhackathon-api.eastus.cloudapp.azure.com",
+  "config": {
+    "vus": 200,
+    "duration_min": 120,
+    "pods": 6,
+    "snapshot_interval": 300
+  },
+  "summary": {
+    "quota_used_tokens": 123854725,
+    "quota_pct": 206.42,
+    "burn_tpm": 1030738.0,
+    "elapsed_min": 120.2
+  },
+  "turn_stats": {
+    "1": {
+      "count": 199,
+      "avg_input": 348957,
+      "avg_output": 5143,
+      "avg_total": 354100
+    },
+    "2": {
+      "count": 172,
+      "avg_input": 61921,
+      "avg_output": 4940,
+      "avg_total": 66862
+    },
+    "3": {
+      "count": 128,
+      "avg_input": 94425,
+      "avg_output": 5844,
+      "avg_total": 100269
+    },
+    "4": {
+      "count": 102,
+      "avg_input": 114387,
+      "avg_output": 8409,
+      "avg_total": 122797
+    },
+    "5": {
+      "count": 51,
+      "avg_input": 199619,
+      "avg_output": 9680,
+      "avg_total": 209300
+    },
+    "6": {
+      "count": 27,
+      "avg_input": 116793,
+      "avg_output": 6671,
+      "avg_total": 123464
+    },
+    "7": {
+      "count": 13,
+      "avg_input": 84528,
+      "avg_output": 6169,
+      "avg_total": 90696
+    },
+    "8": {
+      "count": 4,
+      "avg_input": 284806,
+      "avg_output": 15121,
+      "avg_total": 299927
+    },
+    "9": {
+      "count": 1,
+      "avg_input": 130492,
+      "avg_output": 11871,
+      "avg_total": 142363
+    }
+  },
+  "snapshots": [
+    {
+      "interval": 1,
+      "elapsed_min": 5.0,
+      "vu_count": 200,
+      "rps": 0.54,
+      "p50_ms": 8200,
+      "p95_ms": 21000,
+      "error_rate_pct": 50.64,
+      "quota_used": 529413,
+      "quota_pct": 0.88,
+      "burn_tpm": 105881.0,
+      "eta_exhaustion_min": 562.0,
+      "turn_stats": {
+        "1": {
+          "count": 77,
+          "avg_input": 5778,
+          "avg_output": 1097,
+          "avg_total": 6875
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "969m",
+          "mem_mi": 1464,
+          "mem_limit_pct": 47.7
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "969m",
+          "mem_mi": 1133,
+          "mem_limit_pct": 36.9
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "962m",
+          "mem_mi": 1041,
+          "mem_limit_pct": 33.9
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "978m",
+          "mem_mi": 1060,
+          "mem_limit_pct": 34.5
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "963m",
+          "mem_mi": 925,
+          "mem_limit_pct": 30.1
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "967m",
+          "mem_mi": 1166,
+          "mem_limit_pct": 38.0
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3116m",
+          "cpu_pct": 80,
+          "mem": "4952Mi",
+          "mem_pct": 32
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3103m",
+          "cpu_pct": 80,
+          "mem": "5082Mi",
+          "mem_pct": 33
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "156m",
+          "cpu_pct": 4,
+          "mem": "1963Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 444939,
+      "_cumulative_out": 84474
+    },
+    {
+      "interval": 2,
+      "elapsed_min": 10.1,
+      "vu_count": 200,
+      "rps": 0.1,
+      "p50_ms": 2400,
+      "p95_ms": 14000,
+      "error_rate_pct": 75.86,
+      "quota_used": 846421,
+      "quota_pct": 1.41,
+      "burn_tpm": 83978.0,
+      "eta_exhaustion_min": 704.0,
+      "turn_stats": {
+        "1": {
+          "count": 83,
+          "avg_input": 8843,
+          "avg_output": 1310,
+          "avg_total": 10153
+        },
+        "2": {
+          "count": 1,
+          "avg_input": 3253,
+          "avg_output": 496,
+          "avg_total": 3749
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "971m",
+          "mem_mi": 1632,
+          "mem_limit_pct": 53.1
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "965m",
+          "mem_mi": 1180,
+          "mem_limit_pct": 38.4
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "964m",
+          "mem_mi": 1217,
+          "mem_limit_pct": 39.6
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "971m",
+          "mem_mi": 1202,
+          "mem_limit_pct": 39.1
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "983m",
+          "mem_mi": 1283,
+          "mem_limit_pct": 41.8
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "971m",
+          "mem_mi": 1392,
+          "mem_limit_pct": 45.3
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3114m",
+          "cpu_pct": 80,
+          "mem": "5186Mi",
+          "mem_pct": 34
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3114m",
+          "cpu_pct": 80,
+          "mem": "5425Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "155m",
+          "cpu_pct": 4,
+          "mem": "1979Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 737206,
+      "_cumulative_out": 109215
+    },
+    {
+      "interval": 3,
+      "elapsed_min": 15.2,
+      "vu_count": 200,
+      "rps": 0.26,
+      "p50_ms": 4000,
+      "p95_ms": 12000,
+      "error_rate_pct": 50.65,
+      "quota_used": 3231701,
+      "quota_pct": 5.39,
+      "burn_tpm": 213225.0,
+      "eta_exhaustion_min": 266.0,
+      "turn_stats": {
+        "1": {
+          "count": 110,
+          "avg_input": 26264,
+          "avg_output": 2410,
+          "avg_total": 28674
+        },
+        "2": {
+          "count": 12,
+          "avg_input": 4804,
+          "avg_output": 1663,
+          "avg_total": 6467
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "971m",
+          "mem_mi": 1643,
+          "mem_limit_pct": 53.5
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "966m",
+          "mem_mi": 1343,
+          "mem_limit_pct": 43.7
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "972m",
+          "mem_mi": 918,
+          "mem_limit_pct": 29.9
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "974m",
+          "mem_mi": 1249,
+          "mem_limit_pct": 40.7
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "966m",
+          "mem_mi": 1131,
+          "mem_limit_pct": 36.8
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "968m",
+          "mem_mi": 1330,
+          "mem_limit_pct": 43.3
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3109m",
+          "cpu_pct": 80,
+          "mem": "5387Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3102m",
+          "cpu_pct": 80,
+          "mem": "5387Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "156m",
+          "cpu_pct": 4,
+          "mem": "1974Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 2946679,
+      "_cumulative_out": 285022
+    },
+    {
+      "interval": 4,
+      "elapsed_min": 20.2,
+      "vu_count": 200,
+      "rps": 0.25,
+      "p50_ms": 3300,
+      "p95_ms": 8300,
+      "error_rate_pct": 37.33,
+      "quota_used": 7853440,
+      "quota_pct": 13.09,
+      "burn_tpm": 388148.0,
+      "eta_exhaustion_min": 134.0,
+      "turn_stats": {
+        "1": {
+          "count": 136,
+          "avg_input": 51720,
+          "avg_output": 3581,
+          "avg_total": 55300
+        },
+        "2": {
+          "count": 31,
+          "avg_input": 9083,
+          "avg_output": 1646,
+          "avg_total": 10729
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "968m",
+          "mem_mi": 1774,
+          "mem_limit_pct": 57.7
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "967m",
+          "mem_mi": 1318,
+          "mem_limit_pct": 42.9
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "961m",
+          "mem_mi": 1324,
+          "mem_limit_pct": 43.1
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "976m",
+          "mem_mi": 1247,
+          "mem_limit_pct": 40.6
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "974m",
+          "mem_mi": 1296,
+          "mem_limit_pct": 42.2
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "964m",
+          "mem_mi": 1283,
+          "mem_limit_pct": 41.8
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3105m",
+          "cpu_pct": 80,
+          "mem": "5393Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3122m",
+          "cpu_pct": 80,
+          "mem": "5839Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "159m",
+          "cpu_pct": 4,
+          "mem": "1975Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 7315426,
+      "_cumulative_out": 538014
+    },
+    {
+      "interval": 5,
+      "elapsed_min": 25.3,
+      "vu_count": 200,
+      "rps": 0.27,
+      "p50_ms": 4100,
+      "p95_ms": 9000,
+      "error_rate_pct": 50.63,
+      "quota_used": 10377369,
+      "quota_pct": 17.3,
+      "burn_tpm": 410015.0,
+      "eta_exhaustion_min": 121.0,
+      "turn_stats": {
+        "1": {
+          "count": 149,
+          "avg_input": 60575,
+          "avg_output": 4031,
+          "avg_total": 64606
+        },
+        "2": {
+          "count": 53,
+          "avg_input": 11734,
+          "avg_output": 1706,
+          "avg_total": 13440
+        },
+        "3": {
+          "count": 3,
+          "avg_input": 11545,
+          "avg_output": 1370,
+          "avg_total": 12915
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "966m",
+          "mem_mi": 1688,
+          "mem_limit_pct": 54.9
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "968m",
+          "mem_mi": 1254,
+          "mem_limit_pct": 40.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "972m",
+          "mem_mi": 1322,
+          "mem_limit_pct": 43.0
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "974m",
+          "mem_mi": 1289,
+          "mem_limit_pct": 42.0
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "964m",
+          "mem_mi": 1307,
+          "mem_limit_pct": 42.5
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "961m",
+          "mem_mi": 1339,
+          "mem_limit_pct": 43.6
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3105m",
+          "cpu_pct": 80,
+          "mem": "5403Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3105m",
+          "cpu_pct": 80,
+          "mem": "5645Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "155m",
+          "cpu_pct": 4,
+          "mem": "1976Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 9682217,
+      "_cumulative_out": 695152
+    },
+    {
+      "interval": 6,
+      "elapsed_min": 30.4,
+      "vu_count": 200,
+      "rps": 0.26,
+      "p50_ms": 3800,
+      "p95_ms": 14000,
+      "error_rate_pct": 56.41,
+      "quota_used": 12704959,
+      "quota_pct": 21.17,
+      "burn_tpm": 418101.0,
+      "eta_exhaustion_min": 113.0,
+      "turn_stats": {
+        "1": {
+          "count": 160,
+          "avg_input": 67825,
+          "avg_output": 4434,
+          "avg_total": 72259
+        },
+        "2": {
+          "count": 67,
+          "avg_input": 14077,
+          "avg_output": 1711,
+          "avg_total": 15789
+        },
+        "3": {
+          "count": 8,
+          "avg_input": 9334,
+          "avg_output": 1378,
+          "avg_total": 10712
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "967m",
+          "mem_mi": 1718,
+          "mem_limit_pct": 55.9
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "969m",
+          "mem_mi": 1245,
+          "mem_limit_pct": 40.5
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "971m",
+          "mem_mi": 1289,
+          "mem_limit_pct": 42.0
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "970m",
+          "mem_mi": 1301,
+          "mem_limit_pct": 42.4
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "965m",
+          "mem_mi": 1347,
+          "mem_limit_pct": 43.8
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "966m",
+          "mem_mi": 1366,
+          "mem_limit_pct": 44.5
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3112m",
+          "cpu_pct": 80,
+          "mem": "5467Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3108m",
+          "cpu_pct": 80,
+          "mem": "5606Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "159m",
+          "cpu_pct": 4,
+          "mem": "1994Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 11869838,
+      "_cumulative_out": 835121
+    },
+    {
+      "interval": 7,
+      "elapsed_min": 35.5,
+      "vu_count": 200,
+      "rps": 0.24,
+      "p50_ms": 3500,
+      "p95_ms": 8700,
+      "error_rate_pct": 58.9,
+      "quota_used": 14726133,
+      "quota_pct": 24.54,
+      "burn_tpm": 415240.0,
+      "eta_exhaustion_min": 109.0,
+      "turn_stats": {
+        "1": {
+          "count": 166,
+          "avg_input": 71078,
+          "avg_output": 4613,
+          "avg_total": 75691
+        },
+        "2": {
+          "count": 82,
+          "avg_input": 21208,
+          "avg_output": 2117,
+          "avg_total": 23325
+        },
+        "3": {
+          "count": 14,
+          "avg_input": 14924,
+          "avg_output": 2061,
+          "avg_total": 16985
+        },
+        "4": {
+          "count": 1,
+          "avg_input": 8028,
+          "avg_output": 2998,
+          "avg_total": 11026
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "966m",
+          "mem_mi": 1776,
+          "mem_limit_pct": 57.8
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "969m",
+          "mem_mi": 1366,
+          "mem_limit_pct": 44.5
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "967m",
+          "mem_mi": 1222,
+          "mem_limit_pct": 39.8
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "967m",
+          "mem_mi": 1269,
+          "mem_limit_pct": 41.3
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "967m",
+          "mem_mi": 1438,
+          "mem_limit_pct": 46.8
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "973m",
+          "mem_mi": 1358,
+          "mem_limit_pct": 44.2
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3105m",
+          "cpu_pct": 80,
+          "mem": "5498Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3104m",
+          "cpu_pct": 80,
+          "mem": "5787Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "157m",
+          "cpu_pct": 4,
+          "mem": "1976Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 13755012,
+      "_cumulative_out": 971121
+    },
+    {
+      "interval": 8,
+      "elapsed_min": 40.5,
+      "vu_count": 200,
+      "rps": 0.21,
+      "p50_ms": 2900,
+      "p95_ms": 6900,
+      "error_rate_pct": 58.06,
+      "quota_used": 15613071,
+      "quota_pct": 26.02,
+      "burn_tpm": 385088.0,
+      "eta_exhaustion_min": 115.0,
+      "turn_stats": {
+        "1": {
+          "count": 169,
+          "avg_input": 71400,
+          "avg_output": 4635,
+          "avg_total": 76036
+        },
+        "2": {
+          "count": 91,
+          "avg_input": 23416,
+          "avg_output": 2114,
+          "avg_total": 25530
+        },
+        "3": {
+          "count": 26,
+          "avg_input": 14822,
+          "avg_output": 1671,
+          "avg_total": 16493
+        },
+        "4": {
+          "count": 1,
+          "avg_input": 8028,
+          "avg_output": 2998,
+          "avg_total": 11026
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "968m",
+          "mem_mi": 1797,
+          "mem_limit_pct": 58.5
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "965m",
+          "mem_mi": 1315,
+          "mem_limit_pct": 42.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "961m",
+          "mem_mi": 1353,
+          "mem_limit_pct": 44.0
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "974m",
+          "mem_mi": 1276,
+          "mem_limit_pct": 41.5
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "961m",
+          "mem_mi": 1388,
+          "mem_limit_pct": 45.2
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "969m",
+          "mem_mi": 1440,
+          "mem_limit_pct": 46.9
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3099m",
+          "cpu_pct": 80,
+          "mem": "5569Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3101m",
+          "cpu_pct": 80,
+          "mem": "5744Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "158m",
+          "cpu_pct": 4,
+          "mem": "1975Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 14590929,
+      "_cumulative_out": 1022142
+    },
+    {
+      "interval": 9,
+      "elapsed_min": 45.6,
+      "vu_count": 200,
+      "rps": 0.27,
+      "p50_ms": 3300,
+      "p95_ms": 8600,
+      "error_rate_pct": 68.35,
+      "quota_used": 16227244,
+      "quota_pct": 27.05,
+      "burn_tpm": 355694.0,
+      "eta_exhaustion_min": 123.0,
+      "turn_stats": {
+        "1": {
+          "count": 173,
+          "avg_input": 70459,
+          "avg_output": 4593,
+          "avg_total": 75051
+        },
+        "2": {
+          "count": 97,
+          "avg_input": 25091,
+          "avg_output": 2130,
+          "avg_total": 27221
+        },
+        "3": {
+          "count": 37,
+          "avg_input": 13861,
+          "avg_output": 1589,
+          "avg_total": 15449
+        },
+        "4": {
+          "count": 3,
+          "avg_input": 8952,
+          "avg_output": 1493,
+          "avg_total": 10445
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "974m",
+          "mem_mi": 1793,
+          "mem_limit_pct": 58.4
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "963m",
+          "mem_mi": 1237,
+          "mem_limit_pct": 40.3
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "967m",
+          "mem_mi": 1314,
+          "mem_limit_pct": 42.8
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "972m",
+          "mem_mi": 1318,
+          "mem_limit_pct": 42.9
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "966m",
+          "mem_mi": 1447,
+          "mem_limit_pct": 47.1
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "969m",
+          "mem_mi": 1580,
+          "mem_limit_pct": 51.4
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3101m",
+          "cpu_pct": 80,
+          "mem": "5536Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3107m",
+          "cpu_pct": 80,
+          "mem": "5916Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "157m",
+          "cpu_pct": 4,
+          "mem": "1976Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 15162880,
+      "_cumulative_out": 1064364
+    },
+    {
+      "interval": 10,
+      "elapsed_min": 50.7,
+      "vu_count": 200,
+      "rps": 0.28,
+      "p50_ms": 3200,
+      "p95_ms": 7100,
+      "error_rate_pct": 69.51,
+      "quota_used": 17116582,
+      "quota_pct": 28.53,
+      "burn_tpm": 337591.0,
+      "eta_exhaustion_min": 127.0,
+      "turn_stats": {
+        "1": {
+          "count": 175,
+          "avg_input": 69670,
+          "avg_output": 4557,
+          "avg_total": 74227
+        },
+        "2": {
+          "count": 102,
+          "avg_input": 26324,
+          "avg_output": 2282,
+          "avg_total": 28607
+        },
+        "3": {
+          "count": 43,
+          "avg_input": 23809,
+          "avg_output": 1900,
+          "avg_total": 25709
+        },
+        "4": {
+          "count": 11,
+          "avg_input": 8089,
+          "avg_output": 1317,
+          "avg_total": 9406
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "967m",
+          "mem_mi": 1804,
+          "mem_limit_pct": 58.7
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "969m",
+          "mem_mi": 1386,
+          "mem_limit_pct": 45.1
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "970m",
+          "mem_mi": 1365,
+          "mem_limit_pct": 44.4
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "974m",
+          "mem_mi": 1319,
+          "mem_limit_pct": 42.9
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "966m",
+          "mem_mi": 1473,
+          "mem_limit_pct": 47.9
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "967m",
+          "mem_mi": 1553,
+          "mem_limit_pct": 50.6
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3111m",
+          "cpu_pct": 80,
+          "mem": "5697Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3098m",
+          "cpu_pct": 80,
+          "mem": "5809Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "153m",
+          "cpu_pct": 3,
+          "mem": "1976Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 15990031,
+      "_cumulative_out": 1126551
+    },
+    {
+      "interval": 11,
+      "elapsed_min": 55.8,
+      "vu_count": 200,
+      "rps": 0.23,
+      "p50_ms": 3900,
+      "p95_ms": 9400,
+      "error_rate_pct": 65.22,
+      "quota_used": 17847942,
+      "quota_pct": 29.75,
+      "burn_tpm": 319716.0,
+      "eta_exhaustion_min": 132.0,
+      "turn_stats": {
+        "1": {
+          "count": 176,
+          "avg_input": 69304,
+          "avg_output": 4543,
+          "avg_total": 73847
+        },
+        "2": {
+          "count": 113,
+          "avg_input": 26945,
+          "avg_output": 2328,
+          "avg_total": 29273
+        },
+        "3": {
+          "count": 47,
+          "avg_input": 27543,
+          "avg_output": 2049,
+          "avg_total": 29592
+        },
+        "4": {
+          "count": 16,
+          "avg_input": 7461,
+          "avg_output": 1353,
+          "avg_total": 8814
+        },
+        "5": {
+          "count": 1,
+          "avg_input": 9939,
+          "avg_output": 1158,
+          "avg_total": 11097
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "968m",
+          "mem_mi": 1841,
+          "mem_limit_pct": 59.9
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "965m",
+          "mem_mi": 1395,
+          "mem_limit_pct": 45.4
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "968m",
+          "mem_mi": 1369,
+          "mem_limit_pct": 44.6
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "972m",
+          "mem_mi": 1375,
+          "mem_limit_pct": 44.8
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "967m",
+          "mem_mi": 1491,
+          "mem_limit_pct": 48.5
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "967m",
+          "mem_mi": 1540,
+          "mem_limit_pct": 50.1
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3102m",
+          "cpu_pct": 80,
+          "mem": "5589Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3100m",
+          "cpu_pct": 80,
+          "mem": "5963Mi",
+          "mem_pct": 39
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "160m",
+          "cpu_pct": 4,
+          "mem": "1981Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 16666090,
+      "_cumulative_out": 1181852
+    },
+    {
+      "interval": 12,
+      "elapsed_min": 60.9,
+      "vu_count": 200,
+      "rps": 0.2,
+      "p50_ms": 4800,
+      "p95_ms": 14000,
+      "error_rate_pct": 61.02,
+      "quota_used": 18216749,
+      "quota_pct": 30.36,
+      "burn_tpm": 299109.0,
+      "eta_exhaustion_min": 140.0,
+      "turn_stats": {
+        "1": {
+          "count": 180,
+          "avg_input": 67857,
+          "avg_output": 4465,
+          "avg_total": 72322
+        },
+        "2": {
+          "count": 117,
+          "avg_input": 26228,
+          "avg_output": 2320,
+          "avg_total": 28548
+        },
+        "3": {
+          "count": 55,
+          "avg_input": 27182,
+          "avg_output": 2179,
+          "avg_total": 29361
+        },
+        "4": {
+          "count": 18,
+          "avg_input": 8506,
+          "avg_output": 1526,
+          "avg_total": 10033
+        },
+        "5": {
+          "count": 4,
+          "avg_input": 14570,
+          "avg_output": 1202,
+          "avg_total": 15772
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "965m",
+          "mem_mi": 1822,
+          "mem_limit_pct": 59.3
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "968m",
+          "mem_mi": 1550,
+          "mem_limit_pct": 50.5
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "967m",
+          "mem_mi": 1364,
+          "mem_limit_pct": 44.4
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "969m",
+          "mem_mi": 1384,
+          "mem_limit_pct": 45.1
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "965m",
+          "mem_mi": 1448,
+          "mem_limit_pct": 47.1
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "968m",
+          "mem_mi": 1558,
+          "mem_limit_pct": 50.7
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3106m",
+          "cpu_pct": 80,
+          "mem": "5743Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3114m",
+          "cpu_pct": 80,
+          "mem": "5976Mi",
+          "mem_pct": 39
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "156m",
+          "cpu_pct": 4,
+          "mem": "1985Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 16989336,
+      "_cumulative_out": 1227413
+    },
+    {
+      "interval": 13,
+      "elapsed_min": 66.0,
+      "vu_count": 200,
+      "rps": 0.11,
+      "p50_ms": 5000,
+      "p95_ms": 13000,
+      "error_rate_pct": 29.03,
+      "quota_used": 19194317,
+      "quota_pct": 31.99,
+      "burn_tpm": 290917.0,
+      "eta_exhaustion_min": 140.0,
+      "turn_stats": {
+        "1": {
+          "count": 180,
+          "avg_input": 67857,
+          "avg_output": 4465,
+          "avg_total": 72322
+        },
+        "2": {
+          "count": 122,
+          "avg_input": 25954,
+          "avg_output": 2264,
+          "avg_total": 28217
+        },
+        "3": {
+          "count": 64,
+          "avg_input": 31367,
+          "avg_output": 2456,
+          "avg_total": 33823
+        },
+        "4": {
+          "count": 22,
+          "avg_input": 18960,
+          "avg_output": 1961,
+          "avg_total": 20920
+        },
+        "5": {
+          "count": 5,
+          "avg_input": 20558,
+          "avg_output": 1209,
+          "avg_total": 21767
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "971m",
+          "mem_mi": 1829,
+          "mem_limit_pct": 59.5
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "971m",
+          "mem_mi": 1437,
+          "mem_limit_pct": 46.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "968m",
+          "mem_mi": 1289,
+          "mem_limit_pct": 42.0
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "964m",
+          "mem_mi": 1399,
+          "mem_limit_pct": 45.5
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "966m",
+          "mem_mi": 1334,
+          "mem_limit_pct": 43.4
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "971m",
+          "mem_mi": 1250,
+          "mem_limit_pct": 40.7
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3092m",
+          "cpu_pct": 80,
+          "mem": "5533Mi",
+          "mem_pct": 36
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3100m",
+          "cpu_pct": 80,
+          "mem": "5667Mi",
+          "mem_pct": 37
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "160m",
+          "cpu_pct": 4,
+          "mem": "1989Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 17907997,
+      "_cumulative_out": 1286320
+    },
+    {
+      "interval": 14,
+      "elapsed_min": 71.1,
+      "vu_count": 200,
+      "rps": 0.18,
+      "p50_ms": 6200,
+      "p95_ms": 19000,
+      "error_rate_pct": 16.36,
+      "quota_used": 21413633,
+      "quota_pct": 35.69,
+      "burn_tpm": 301363.0,
+      "eta_exhaustion_min": 128.0,
+      "turn_stats": {
+        "1": {
+          "count": 185,
+          "avg_input": 69186,
+          "avg_output": 4508,
+          "avg_total": 73694
+        },
+        "2": {
+          "count": 130,
+          "avg_input": 26115,
+          "avg_output": 2399,
+          "avg_total": 28514
+        },
+        "3": {
+          "count": 71,
+          "avg_input": 31409,
+          "avg_output": 2472,
+          "avg_total": 33880
+        },
+        "4": {
+          "count": 29,
+          "avg_input": 46343,
+          "avg_output": 3087,
+          "avg_total": 49429
+        },
+        "5": {
+          "count": 7,
+          "avg_input": 31913,
+          "avg_output": 1578,
+          "avg_total": 33491
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "969m",
+          "mem_mi": 1940,
+          "mem_limit_pct": 63.2
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "976m",
+          "mem_mi": 614,
+          "mem_limit_pct": 20.0
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "960m",
+          "mem_mi": 1288,
+          "mem_limit_pct": 41.9
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "977m",
+          "mem_mi": 1383,
+          "mem_limit_pct": 45.0
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "961m",
+          "mem_mi": 1405,
+          "mem_limit_pct": 45.7
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "972m",
+          "mem_mi": 1560,
+          "mem_limit_pct": 50.8
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3128m",
+          "cpu_pct": 81,
+          "mem": "5068Mi",
+          "mem_pct": 33
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3116m",
+          "cpu_pct": 80,
+          "mem": "5909Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "162m",
+          "cpu_pct": 4,
+          "mem": "1985Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 19991724,
+      "_cumulative_out": 1421909
+    },
+    {
+      "interval": 15,
+      "elapsed_min": 76.1,
+      "vu_count": 200,
+      "rps": 0.16,
+      "p50_ms": 5300,
+      "p95_ms": 18000,
+      "error_rate_pct": 14.89,
+      "quota_used": 25643106,
+      "quota_pct": 42.74,
+      "burn_tpm": 336813.0,
+      "eta_exhaustion_min": 102.0,
+      "turn_stats": {
+        "1": {
+          "count": 185,
+          "avg_input": 69186,
+          "avg_output": 4508,
+          "avg_total": 73694
+        },
+        "2": {
+          "count": 132,
+          "avg_input": 26896,
+          "avg_output": 2445,
+          "avg_total": 29341
+        },
+        "3": {
+          "count": 80,
+          "avg_input": 52639,
+          "avg_output": 3740,
+          "avg_total": 56379
+        },
+        "4": {
+          "count": 36,
+          "avg_input": 86323,
+          "avg_output": 4410,
+          "avg_total": 90733
+        },
+        "5": {
+          "count": 9,
+          "avg_input": 29536,
+          "avg_output": 1353,
+          "avg_total": 30889
+        },
+        "6": {
+          "count": 2,
+          "avg_input": 37834,
+          "avg_output": 3169,
+          "avg_total": 41003
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "963m",
+          "mem_mi": 1820,
+          "mem_limit_pct": 59.2
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "971m",
+          "mem_mi": 779,
+          "mem_limit_pct": 25.4
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "964m",
+          "mem_mi": 1279,
+          "mem_limit_pct": 41.6
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "966m",
+          "mem_mi": 1337,
+          "mem_limit_pct": 43.5
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "953m",
+          "mem_mi": 1424,
+          "mem_limit_pct": 46.4
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "963m",
+          "mem_mi": 1396,
+          "mem_limit_pct": 45.4
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3121m",
+          "cpu_pct": 80,
+          "mem": "5109Mi",
+          "mem_pct": 33
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3118m",
+          "cpu_pct": 80,
+          "mem": "5801Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "195m",
+          "cpu_pct": 5,
+          "mem": "1985Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 24009961,
+      "_cumulative_out": 1633145
+    },
+    {
+      "interval": 16,
+      "elapsed_min": 81.2,
+      "vu_count": 200,
+      "rps": 0.14,
+      "p50_ms": 4100,
+      "p95_ms": 12000,
+      "error_rate_pct": 16.67,
+      "quota_used": 30555871,
+      "quota_pct": 50.93,
+      "burn_tpm": 376206.0,
+      "eta_exhaustion_min": 78.0,
+      "turn_stats": {
+        "1": {
+          "count": 188,
+          "avg_input": 71264,
+          "avg_output": 4620,
+          "avg_total": 75884
+        },
+        "2": {
+          "count": 139,
+          "avg_input": 35874,
+          "avg_output": 2807,
+          "avg_total": 38681
+        },
+        "3": {
+          "count": 87,
+          "avg_input": 67110,
+          "avg_output": 4266,
+          "avg_total": 71376
+        },
+        "4": {
+          "count": 39,
+          "avg_input": 99806,
+          "avg_output": 4868,
+          "avg_total": 104674
+        },
+        "5": {
+          "count": 10,
+          "avg_input": 51337,
+          "avg_output": 2574,
+          "avg_total": 53910
+        },
+        "6": {
+          "count": 2,
+          "avg_input": 37834,
+          "avg_output": 3169,
+          "avg_total": 41003
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "961m",
+          "mem_mi": 1933,
+          "mem_limit_pct": 62.9
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "967m",
+          "mem_mi": 957,
+          "mem_limit_pct": 31.2
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "962m",
+          "mem_mi": 1315,
+          "mem_limit_pct": 42.8
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "974m",
+          "mem_mi": 1413,
+          "mem_limit_pct": 46.0
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "961m",
+          "mem_mi": 1217,
+          "mem_limit_pct": 39.6
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "962m",
+          "mem_mi": 1432,
+          "mem_limit_pct": 46.6
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3133m",
+          "cpu_pct": 81,
+          "mem": "5173Mi",
+          "mem_pct": 33
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3160m",
+          "cpu_pct": 81,
+          "mem": "5814Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "203m",
+          "cpu_pct": 5,
+          "mem": "1982Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 28704017,
+      "_cumulative_out": 1851854
+    },
+    {
+      "interval": 17,
+      "elapsed_min": 86.3,
+      "vu_count": 200,
+      "rps": 0.16,
+      "p50_ms": 4000,
+      "p95_ms": 16000,
+      "error_rate_pct": 17.78,
+      "quota_used": 37278911,
+      "quota_pct": 62.13,
+      "burn_tpm": 431951.0,
+      "eta_exhaustion_min": 53.0,
+      "turn_stats": {
+        "1": {
+          "count": 188,
+          "avg_input": 71264,
+          "avg_output": 4620,
+          "avg_total": 75884
+        },
+        "2": {
+          "count": 143,
+          "avg_input": 43955,
+          "avg_output": 3163,
+          "avg_total": 47118
+        },
+        "3": {
+          "count": 93,
+          "avg_input": 68028,
+          "avg_output": 4306,
+          "avg_total": 72334
+        },
+        "4": {
+          "count": 48,
+          "avg_input": 133813,
+          "avg_output": 6443,
+          "avg_total": 140256
+        },
+        "5": {
+          "count": 16,
+          "avg_input": 143029,
+          "avg_output": 6758,
+          "avg_total": 149787
+        },
+        "6": {
+          "count": 5,
+          "avg_input": 76975,
+          "avg_output": 6802,
+          "avg_total": 83777
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "963m",
+          "mem_mi": 1937,
+          "mem_limit_pct": 63.1
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "968m",
+          "mem_mi": 973,
+          "mem_limit_pct": 31.7
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "961m",
+          "mem_mi": 1295,
+          "mem_limit_pct": 42.2
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "962m",
+          "mem_mi": 1283,
+          "mem_limit_pct": 41.8
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "960m",
+          "mem_mi": 1497,
+          "mem_limit_pct": 48.7
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "956m",
+          "mem_mi": 1425,
+          "mem_limit_pct": 46.4
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3121m",
+          "cpu_pct": 80,
+          "mem": "5190Mi",
+          "mem_pct": 34
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3131m",
+          "cpu_pct": 81,
+          "mem": "5876Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "203m",
+          "cpu_pct": 5,
+          "mem": "1996Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 35106123,
+      "_cumulative_out": 2172788
+    },
+    {
+      "interval": 18,
+      "elapsed_min": 91.4,
+      "vu_count": 200,
+      "rps": 0.18,
+      "p50_ms": 4000,
+      "p95_ms": 11000,
+      "error_rate_pct": 32.69,
+      "quota_used": 43043543,
+      "quota_pct": 71.74,
+      "burn_tpm": 471034.0,
+      "eta_exhaustion_min": 36.0,
+      "turn_stats": {
+        "1": {
+          "count": 189,
+          "avg_input": 70921,
+          "avg_output": 4605,
+          "avg_total": 75526
+        },
+        "2": {
+          "count": 143,
+          "avg_input": 43955,
+          "avg_output": 3163,
+          "avg_total": 47118
+        },
+        "3": {
+          "count": 100,
+          "avg_input": 92585,
+          "avg_output": 5163,
+          "avg_total": 97748
+        },
+        "4": {
+          "count": 62,
+          "avg_input": 126489,
+          "avg_output": 6351,
+          "avg_total": 132840
+        },
+        "5": {
+          "count": 20,
+          "avg_input": 160606,
+          "avg_output": 6855,
+          "avg_total": 167461
+        },
+        "6": {
+          "count": 8,
+          "avg_input": 62595,
+          "avg_output": 5127,
+          "avg_total": 67722
+        },
+        "7": {
+          "count": 1,
+          "avg_input": 122476,
+          "avg_output": 6838,
+          "avg_total": 129314
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "970m",
+          "mem_mi": 2079,
+          "mem_limit_pct": 67.7
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "963m",
+          "mem_mi": 854,
+          "mem_limit_pct": 27.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "959m",
+          "mem_mi": 1300,
+          "mem_limit_pct": 42.3
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "967m",
+          "mem_mi": 1331,
+          "mem_limit_pct": 43.3
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "954m",
+          "mem_mi": 1478,
+          "mem_limit_pct": 48.1
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "955m",
+          "mem_mi": 1502,
+          "mem_limit_pct": 48.9
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3125m",
+          "cpu_pct": 80,
+          "mem": "5300Mi",
+          "mem_pct": 34
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3124m",
+          "cpu_pct": 80,
+          "mem": "5908Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "170m",
+          "cpu_pct": 4,
+          "mem": "1984Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 40625711,
+      "_cumulative_out": 2417832
+    },
+    {
+      "interval": 19,
+      "elapsed_min": 96.5,
+      "vu_count": 200,
+      "rps": 0.18,
+      "p50_ms": 4000,
+      "p95_ms": 12000,
+      "error_rate_pct": 30.19,
+      "quota_used": 46928076,
+      "quota_pct": 78.21,
+      "burn_tpm": 486498.0,
+      "eta_exhaustion_min": 27.0,
+      "turn_stats": {
+        "1": {
+          "count": 189,
+          "avg_input": 70921,
+          "avg_output": 4605,
+          "avg_total": 75526
+        },
+        "2": {
+          "count": 147,
+          "avg_input": 51683,
+          "avg_output": 3543,
+          "avg_total": 55226
+        },
+        "3": {
+          "count": 103,
+          "avg_input": 96810,
+          "avg_output": 5228,
+          "avg_total": 102039
+        },
+        "4": {
+          "count": 67,
+          "avg_input": 125541,
+          "avg_output": 6243,
+          "avg_total": 131784
+        },
+        "5": {
+          "count": 23,
+          "avg_input": 172158,
+          "avg_output": 7286,
+          "avg_total": 179444
+        },
+        "6": {
+          "count": 12,
+          "avg_input": 73057,
+          "avg_output": 5225,
+          "avg_total": 78282
+        },
+        "7": {
+          "count": 1,
+          "avg_input": 122476,
+          "avg_output": 6838,
+          "avg_total": 129314
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "967m",
+          "mem_mi": 2041,
+          "mem_limit_pct": 66.4
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "961m",
+          "mem_mi": 1055,
+          "mem_limit_pct": 34.3
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "961m",
+          "mem_mi": 1328,
+          "mem_limit_pct": 43.2
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "965m",
+          "mem_mi": 1429,
+          "mem_limit_pct": 46.5
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "955m",
+          "mem_mi": 1499,
+          "mem_limit_pct": 48.8
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "961m",
+          "mem_mi": 1508,
+          "mem_limit_pct": 49.1
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3097m",
+          "cpu_pct": 80,
+          "mem": "5449Mi",
+          "mem_pct": 35
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3144m",
+          "cpu_pct": 81,
+          "mem": "5861Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "191m",
+          "cpu_pct": 4,
+          "mem": "1988Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 44342964,
+      "_cumulative_out": 2585112
+    },
+    {
+      "interval": 20,
+      "elapsed_min": 101.5,
+      "vu_count": 200,
+      "rps": 0.26,
+      "p50_ms": 4900,
+      "p95_ms": 18000,
+      "error_rate_pct": 31.17,
+      "quota_used": 66731744,
+      "quota_pct": 111.22,
+      "burn_tpm": 657188.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 191,
+          "avg_input": 154012,
+          "avg_output": 4680,
+          "avg_total": 158692
+        },
+        "2": {
+          "count": 152,
+          "avg_input": 53175,
+          "avg_output": 3811,
+          "avg_total": 56985
+        },
+        "3": {
+          "count": 107,
+          "avg_input": 94935,
+          "avg_output": 5133,
+          "avg_total": 100067
+        },
+        "4": {
+          "count": 78,
+          "avg_input": 118754,
+          "avg_output": 7197,
+          "avg_total": 125951
+        },
+        "5": {
+          "count": 30,
+          "avg_input": 178996,
+          "avg_output": 7976,
+          "avg_total": 186973
+        },
+        "6": {
+          "count": 17,
+          "avg_input": 77217,
+          "avg_output": 6067,
+          "avg_total": 83285
+        },
+        "7": {
+          "count": 4,
+          "avg_input": 48324,
+          "avg_output": 2505,
+          "avg_total": 50829
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "966m",
+          "mem_mi": 2161,
+          "mem_limit_pct": 70.3
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "110m",
+          "mem_mi": 222,
+          "mem_limit_pct": 7.2
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "961m",
+          "mem_mi": 1396,
+          "mem_limit_pct": 45.4
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "1010m",
+          "mem_mi": 1488,
+          "mem_limit_pct": 48.4
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "956m",
+          "mem_mi": 1492,
+          "mem_limit_pct": 48.6
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "1014m",
+          "mem_mi": 1531,
+          "mem_limit_pct": 49.8
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "2457m",
+          "cpu_pct": 63,
+          "mem": "4805Mi",
+          "mem_pct": 31
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3142m",
+          "cpu_pct": 81,
+          "mem": "5979Mi",
+          "mem_pct": 39
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "183m",
+          "cpu_pct": 4,
+          "mem": "1990Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 63795533,
+      "_cumulative_out": 2936211
+    },
+    {
+      "interval": 21,
+      "elapsed_min": 106.6,
+      "vu_count": 200,
+      "rps": 0.18,
+      "p50_ms": 4600,
+      "p95_ms": 13000,
+      "error_rate_pct": 25.45,
+      "quota_used": 110194281,
+      "quota_pct": 183.66,
+      "burn_tpm": 1033519.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 194,
+          "avg_input": 355715,
+          "avg_output": 4952,
+          "avg_total": 360667
+        },
+        "2": {
+          "count": 154,
+          "avg_input": 55699,
+          "avg_output": 3849,
+          "avg_total": 59548
+        },
+        "3": {
+          "count": 113,
+          "avg_input": 91151,
+          "avg_output": 4968,
+          "avg_total": 96120
+        },
+        "4": {
+          "count": 85,
+          "avg_input": 117253,
+          "avg_output": 7070,
+          "avg_total": 124323
+        },
+        "5": {
+          "count": 38,
+          "avg_input": 185636,
+          "avg_output": 7814,
+          "avg_total": 193450
+        },
+        "6": {
+          "count": 18,
+          "avg_input": 96880,
+          "avg_output": 6389,
+          "avg_total": 103269
+        },
+        "7": {
+          "count": 5,
+          "avg_input": 39832,
+          "avg_output": 2080,
+          "avg_total": 41912
+        },
+        "8": {
+          "count": 2,
+          "avg_input": 96624,
+          "avg_output": 6376,
+          "avg_total": 103000
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "960m",
+          "mem_mi": 2177,
+          "mem_limit_pct": 70.9
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "981m",
+          "mem_mi": 688,
+          "mem_limit_pct": 22.4
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "959m",
+          "mem_mi": 1372,
+          "mem_limit_pct": 44.7
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "990m",
+          "mem_mi": 1434,
+          "mem_limit_pct": 46.7
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "949m",
+          "mem_mi": 1433,
+          "mem_limit_pct": 46.6
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "964m",
+          "mem_mi": 1489,
+          "mem_limit_pct": 48.5
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3172m",
+          "cpu_pct": 82,
+          "mem": "5062Mi",
+          "mem_pct": 33
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "3115m",
+          "cpu_pct": 80,
+          "mem": "5923Mi",
+          "mem_pct": 38
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "166m",
+          "cpu_pct": 4,
+          "mem": "1988Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 107043456,
+      "_cumulative_out": 3150825
+    },
+    {
+      "interval": 22,
+      "elapsed_min": 109.5,
+      "vu_count": 200,
+      "rps": 0.13,
+      "p50_ms": 3300,
+      "p95_ms": 11000,
+      "error_rate_pct": 10.0,
+      "quota_used": 115125769,
+      "quota_pct": 191.88,
+      "burn_tpm": 1051736.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 195,
+          "avg_input": 354516,
+          "avg_output": 5021,
+          "avg_total": 359537
+        },
+        "2": {
+          "count": 155,
+          "avg_input": 56163,
+          "avg_output": 3974,
+          "avg_total": 60138
+        },
+        "3": {
+          "count": 113,
+          "avg_input": 91151,
+          "avg_output": 4968,
+          "avg_total": 96120
+        },
+        "4": {
+          "count": 90,
+          "avg_input": 118672,
+          "avg_output": 6961,
+          "avg_total": 125633
+        },
+        "5": {
+          "count": 42,
+          "avg_input": 219090,
+          "avg_output": 8462,
+          "avg_total": 227552
+        },
+        "6": {
+          "count": 21,
+          "avg_input": 136505,
+          "avg_output": 7358,
+          "avg_total": 143863
+        },
+        "7": {
+          "count": 8,
+          "avg_input": 87582,
+          "avg_output": 5144,
+          "avg_total": 92726
+        },
+        "8": {
+          "count": 2,
+          "avg_input": 96624,
+          "avg_output": 6376,
+          "avg_total": 103000
+        }
+      },
+      "pod_memory": [],
+      "pod_cpu_dist": {},
+      "nodes": [],
+      "blob": {},
+      "_cumulative_in": 111778936,
+      "_cumulative_out": 3346833
+    },
+    {
+      "interval": 23,
+      "elapsed_min": 109.8,
+      "vu_count": 200,
+      "rps": 0.0,
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "error_rate_pct": 0.0,
+      "quota_used": 120915938,
+      "quota_pct": 201.53,
+      "burn_tpm": 1101275.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 199,
+          "avg_input": 348957,
+          "avg_output": 5143,
+          "avg_total": 354100
+        },
+        "2": {
+          "count": 170,
+          "avg_input": 62641,
+          "avg_output": 4997,
+          "avg_total": 67638
+        },
+        "3": {
+          "count": 125,
+          "avg_input": 89546,
+          "avg_output": 5651,
+          "avg_total": 95197
+        },
+        "4": {
+          "count": 101,
+          "avg_input": 114686,
+          "avg_output": 8269,
+          "avg_total": 122955
+        },
+        "5": {
+          "count": 49,
+          "avg_input": 204309,
+          "avg_output": 9877,
+          "avg_total": 214186
+        },
+        "6": {
+          "count": 22,
+          "avg_input": 130520,
+          "avg_output": 7057,
+          "avg_total": 137576
+        },
+        "7": {
+          "count": 10,
+          "avg_input": 83510,
+          "avg_output": 7053,
+          "avg_total": 90563
+        },
+        "8": {
+          "count": 2,
+          "avg_input": 96624,
+          "avg_output": 6376,
+          "avg_total": 103000
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "65m",
+          "mem_mi": 240,
+          "mem_limit_pct": 7.8
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "973m",
+          "mem_mi": 945,
+          "mem_limit_pct": 30.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "1006m",
+          "mem_mi": 1415,
+          "mem_limit_pct": 46.1
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "972m",
+          "mem_mi": 1451,
+          "mem_limit_pct": 47.2
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "1007m",
+          "mem_mi": 1949,
+          "mem_limit_pct": 63.4
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "970m",
+          "mem_mi": 1615,
+          "mem_limit_pct": 52.6
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "3133m",
+          "cpu_pct": 81,
+          "mem": "5290Mi",
+          "mem_pct": 34
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "2284m",
+          "cpu_pct": 59,
+          "mem": "4799Mi",
+          "mem_pct": 31
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "155m",
+          "cpu_pct": 4,
+          "mem": "1970Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 116778856,
+      "_cumulative_out": 4137082
+    },
+    {
+      "interval": 24,
+      "elapsed_min": 114.9,
+      "vu_count": 200,
+      "rps": 0.68,
+      "p50_ms": 14000,
+      "p95_ms": 45000,
+      "error_rate_pct": 11.92,
+      "quota_used": 121535124,
+      "quota_pct": 202.56,
+      "burn_tpm": 1057717.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 199,
+          "avg_input": 348957,
+          "avg_output": 5143,
+          "avg_total": 354100
+        },
+        "2": {
+          "count": 172,
+          "avg_input": 61921,
+          "avg_output": 4940,
+          "avg_total": 66862
+        },
+        "3": {
+          "count": 126,
+          "avg_input": 88841,
+          "avg_output": 5606,
+          "avg_total": 94448
+        },
+        "4": {
+          "count": 102,
+          "avg_input": 114387,
+          "avg_output": 8409,
+          "avg_total": 122797
+        },
+        "5": {
+          "count": 51,
+          "avg_input": 199619,
+          "avg_output": 9680,
+          "avg_total": 209300
+        },
+        "6": {
+          "count": 26,
+          "avg_input": 112710,
+          "avg_output": 6457,
+          "avg_total": 119167
+        },
+        "7": {
+          "count": 12,
+          "avg_input": 90397,
+          "avg_output": 6659,
+          "avg_total": 97057
+        },
+        "8": {
+          "count": 2,
+          "avg_input": 96624,
+          "avg_output": 6376,
+          "avg_total": 103000
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "381m",
+          "mem_mi": 223,
+          "mem_limit_pct": 7.3
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "994m",
+          "mem_mi": 454,
+          "mem_limit_pct": 14.8
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "1030m",
+          "mem_mi": 559,
+          "mem_limit_pct": 18.2
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "437m",
+          "mem_mi": 225,
+          "mem_limit_pct": 7.3
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "68m",
+          "mem_mi": 225,
+          "mem_limit_pct": 7.3
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "997m",
+          "mem_mi": 1843,
+          "mem_limit_pct": 60.0
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "2721m",
+          "cpu_pct": 70,
+          "mem": "3780Mi",
+          "mem_pct": 24
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "1777m",
+          "cpu_pct": 46,
+          "mem": "2813Mi",
+          "mem_pct": 18
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "159m",
+          "cpu_pct": 4,
+          "mem": "1982Mi",
+          "mem_pct": 13
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 117343423,
+      "_cumulative_out": 4191701
+    },
+    {
+      "interval": 25,
+      "elapsed_min": 120.0,
+      "vu_count": 200,
+      "rps": 0.05,
+      "p50_ms": 2700,
+      "p95_ms": 5500,
+      "error_rate_pct": 0.0,
+      "quota_used": 123854725,
+      "quota_pct": 206.42,
+      "burn_tpm": 1032061.0,
+      "eta_exhaustion_min": 0.0,
+      "turn_stats": {
+        "1": {
+          "count": 199,
+          "avg_input": 348957,
+          "avg_output": 5143,
+          "avg_total": 354100
+        },
+        "2": {
+          "count": 172,
+          "avg_input": 61921,
+          "avg_output": 4940,
+          "avg_total": 66862
+        },
+        "3": {
+          "count": 128,
+          "avg_input": 94425,
+          "avg_output": 5844,
+          "avg_total": 100269
+        },
+        "4": {
+          "count": 102,
+          "avg_input": 114387,
+          "avg_output": 8409,
+          "avg_total": 122797
+        },
+        "5": {
+          "count": 51,
+          "avg_input": 199619,
+          "avg_output": 9680,
+          "avg_total": 209300
+        },
+        "6": {
+          "count": 27,
+          "avg_input": 116793,
+          "avg_output": 6671,
+          "avg_total": 123464
+        },
+        "7": {
+          "count": 13,
+          "avg_input": 84528,
+          "avg_output": 6169,
+          "avg_total": 90696
+        },
+        "8": {
+          "count": 4,
+          "avg_input": 284806,
+          "avg_output": 15121,
+          "avg_total": 299927
+        },
+        "9": {
+          "count": 1,
+          "avg_input": 130492,
+          "avg_output": 11871,
+          "avg_total": 142363
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-7f6bd8d484-thlcx",
+          "cpu": "629m",
+          "mem_mi": 594,
+          "mem_limit_pct": 19.3
+        },
+        {
+          "name": "neuro-san-key-2-5557f76665-fqkbk",
+          "cpu": "1036m",
+          "mem_mi": 816,
+          "mem_limit_pct": 26.6
+        },
+        {
+          "name": "neuro-san-key-3-b5cccbd5c-s6qst",
+          "cpu": "995m",
+          "mem_mi": 705,
+          "mem_limit_pct": 22.9
+        },
+        {
+          "name": "neuro-san-key-4-5b577b8747-5j9dt",
+          "cpu": "499m",
+          "mem_mi": 341,
+          "mem_limit_pct": 11.1
+        },
+        {
+          "name": "neuro-san-key-5-84cdccc9db-2hnzh",
+          "cpu": "983m",
+          "mem_mi": 614,
+          "mem_limit_pct": 20.0
+        },
+        {
+          "name": "neuro-san-key-6-7bf9556765-pw6ck",
+          "cpu": "166m",
+          "mem_mi": 255,
+          "mem_limit_pct": 8.3
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 139,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "1958m",
+          "cpu_pct": 50,
+          "mem": "3052Mi",
+          "mem_pct": 20
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "2867m",
+          "cpu_pct": 74,
+          "mem": "3678Mi",
+          "mem_pct": 24
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "171m",
+          "cpu_pct": 4,
+          "mem": "1976Mi",
+          "mem_pct": 12
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 119549355,
+      "_cumulative_out": 4305370
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import json
 import random
 import time
 
+import requests
 from locust import HttpUser, between, task
 
 from config import (
@@ -19,10 +20,40 @@ from config import (
     CHAT_TIMEOUT,
     DEFAULT_AGENT,
     FAST_TIMEOUT,
+    FRONTEND_URL,
     HACKATHON_DESIGN_PROMPTS,
     KNOWN_AGENTS,
+    THINK_TIME_MAX,
+    THINK_TIME_MIN,
 )
-from metrics import token_tracker, turn_tracker
+from metrics import in_flight, rate_limit_tracker, token_tracker, turn_tracker
+
+
+def _frontend_login(user) -> None:
+    """Simulate a participant loading the UI (the login-wave hit) once per session.
+
+    Fetches the app shell + /api/environment on the FRONTEND host and reports the
+    timings into Locust's stats (names 'GET frontend shell' / 'GET /api/environment')
+    so the UI tier shows up alongside the backend design load. Best-effort: a failure
+    is recorded but never aborts the session.
+    """
+    for path, name in (("/", "GET frontend shell"),
+                       ("/api/environment", "GET /api/environment")):
+        t0 = time.monotonic()
+        exc = None
+        length = 0
+        try:
+            resp = requests.get(f"{FRONTEND_URL}{path}", timeout=FAST_TIMEOUT * 3)
+            length = len(resp.content or b"")
+            if resp.status_code >= 400:
+                exc = Exception(f"{name} → {resp.status_code}")
+        except Exception as e:      # noqa: BLE001 — report, don't crash the VU
+            exc = e
+        user.environment.events.request.fire(
+            request_type="GET", name=name,
+            response_time=(time.monotonic() - t0) * 1000.0,
+            response_length=length, exception=exc, context={},
+        )
 
 
 def _read_stream(r) -> bytes:
@@ -740,13 +771,16 @@ class SessionUser(HttpUser):
       compounding effect clearly.
     """
     weight    = 1
-    wait_time = between(90, 150)    # ~2 min between turns — realistic for fast participants
+    # Closed-loop: think time fires AFTER the answer arrives, before the next turn.
+    wait_time = between(THINK_TIME_MIN, THINK_TIME_MAX)   # 2-4 min (config)
 
     def on_start(self):
         self._uid      = _uid("sess")   # FIXED for entire session → NGINX sticky
         self._context: dict = {}        # grows each turn (chat_context)
         self._sly_data: dict | None = None  # carries agent_network_name for turn 2+
         self._turn     = 0              # 0-indexed: 0 = first design, 1+ = refinements
+        # Model the login wave: each participant loads the UI once before designing.
+        _frontend_login(self)
 
     @task
     def session_turn(self):
@@ -761,39 +795,45 @@ class SessionUser(HttpUser):
         # Real participants wait a moment and try again — this models that behaviour
         # and avoids session death from a brief pod restart or Azure rate-limit blip.
         for attempt in range(2):
-            with self.client.post(
-                "/api/v1/agent_network_designer/streaming_chat",
-                data=_chat_body(message, self._context, self._sly_data),
-                headers=_headers(self._uid, accept_stream=True),
-                timeout=CHAT_TIMEOUT,
-                name=turn_name,
-                catch_response=True,
-                stream=True,
-            ) as r:
-                if r.status_code == 200:
-                    body = _read_stream(r)
-                    if body:
-                        inp, out = _extract_tokens(body)
-                        if inp or out:
-                            token_tracker.record(inp, out)
-                            turn_tracker.record(self._turn + 1, inp, out)
-                        self._update_context(body)
-                        self._turn += 1
-                        r.success()
-                        return  # done — think time fires next
+            in_flight.inc()   # this design is now running (concurrency gauge)
+            try:
+                with self.client.post(
+                    "/api/v1/agent_network_designer/streaming_chat",
+                    data=_chat_body(message, self._context, self._sly_data),
+                    headers=_headers(self._uid, accept_stream=True),
+                    timeout=CHAT_TIMEOUT,
+                    name=turn_name,
+                    catch_response=True,
+                    stream=True,
+                ) as r:
+                    if r.status_code == 200:
+                        body = _read_stream(r)
+                        if body:
+                            inp, out = _extract_tokens(body)
+                            if inp or out:
+                                token_tracker.record(inp, out)
+                                turn_tracker.record(self._turn + 1, inp, out)
+                            self._update_context(body)
+                            self._turn += 1
+                            r.success()
+                            return  # done — think time fires next
+                        else:
+                            r.failure("empty stream body")
+                    elif r.status_code == 429:
+                        # Our NGINX per-user limit (1 query/30s), NOT an Azure quota hit.
+                        rate_limit_tracker.record(self._uid)
+                        r.failure("rate limited (429) — per-user 1 query/30s limit")
+                        return  # rate limit is intentional — don't retry-hammer it
+                    elif r.status_code == 503:
+                        r.failure("service unavailable (503) — LLM slot capacity exceeded")
+                    elif r.status_code == 504:
+                        r.failure("gateway timeout (504) — response exceeded NGINX timeout")
+                        return  # timeout already waited long enough — don't double-wait
                     else:
-                        r.failure("empty stream body")
-                elif r.status_code == 429:
-                    r.failure("rate limited (429) — TPM/RPM quota hit on Azure AI Foundry")
-                    return  # quota hit is not transient — don't retry
-                elif r.status_code == 503:
-                    r.failure("service unavailable (503) — LLM slot capacity exceeded")
-                elif r.status_code == 504:
-                    r.failure("gateway timeout (504) — response exceeded NGINX timeout")
-                    return  # timeout already waited long enough — don't double-wait
-                else:
-                    r.failure(f"turn {self._turn + 1} → {r.status_code}: {r.text[:120]}")
-                    return  # non-retriable (unexpected status)
+                        r.failure(f"turn {self._turn + 1} → {r.status_code}: {r.text[:120]}")
+                        return  # non-retriable (unexpected status)
+            finally:
+                in_flight.dec()
 
             if attempt == 0:
                 time.sleep(20)  # wait 20s before retry (pod recovers, Azure clears)

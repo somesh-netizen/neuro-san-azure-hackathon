@@ -1,0 +1,155 @@
+{
+  "test_type": "hackathon_soak",
+  "timestamp": "2026-06-25T09:27:07.009400+00:00",
+  "host": "https://neurosanhackathon-api.eastus.cloudapp.azure.com",
+  "config": {
+    "vus": 10,
+    "duration_min": 5,
+    "pods": 12,
+    "snapshot_interval": 300
+  },
+  "summary": {
+    "quota_used_tokens": 1468459,
+    "quota_pct": 1.22,
+    "burn_tpm": 284167.0,
+    "elapsed_min": 5.2
+  },
+  "turn_stats": {
+    "1": {
+      "count": 10,
+      "avg_input": 138223,
+      "avg_output": 8623,
+      "avg_total": 146846
+    }
+  },
+  "snapshots": [
+    {
+      "interval": 1,
+      "elapsed_min": 5.0,
+      "vu_count": 10,
+      "rps": 0.05,
+      "p50_ms": 3600,
+      "p95_ms": 4000,
+      "error_rate_pct": 0.0,
+      "quota_used": 1468459,
+      "quota_pct": 1.22,
+      "burn_tpm": 293691.0,
+      "eta_exhaustion_min": 404.0,
+      "turn_stats": {
+        "1": {
+          "count": 10,
+          "avg_input": 138223,
+          "avg_output": 8623,
+          "avg_total": 146846
+        }
+      },
+      "pod_memory": [
+        {
+          "name": "neuro-san-key-1-76cb5c7878-h5jsg",
+          "cpu": "43m",
+          "mem_mi": 240,
+          "mem_limit_pct": 7.8
+        },
+        {
+          "name": "neuro-san-key-10-68db5bdcdd-j8bzd",
+          "cpu": "112m",
+          "mem_mi": 288,
+          "mem_limit_pct": 9.4
+        },
+        {
+          "name": "neuro-san-key-11-6c6b7dfb98-hgwb2",
+          "cpu": "28m",
+          "mem_mi": 287,
+          "mem_limit_pct": 9.3
+        },
+        {
+          "name": "neuro-san-key-12-68c75cf8c6-6rtpv",
+          "cpu": "56m",
+          "mem_mi": 242,
+          "mem_limit_pct": 7.9
+        },
+        {
+          "name": "neuro-san-key-2-769b69b89b-cw65b",
+          "cpu": "44m",
+          "mem_mi": 236,
+          "mem_limit_pct": 7.7
+        },
+        {
+          "name": "neuro-san-key-3-7bc99d88d6-bnnqp",
+          "cpu": "63m",
+          "mem_mi": 331,
+          "mem_limit_pct": 10.8
+        },
+        {
+          "name": "neuro-san-key-4-6dd79fbdf6-qr6c4",
+          "cpu": "47m",
+          "mem_mi": 287,
+          "mem_limit_pct": 9.3
+        },
+        {
+          "name": "neuro-san-key-5-59894475db-xfbtx",
+          "cpu": "68m",
+          "mem_mi": 305,
+          "mem_limit_pct": 9.9
+        },
+        {
+          "name": "neuro-san-key-6-74c66f6f96-nw8pm",
+          "cpu": "45m",
+          "mem_mi": 290,
+          "mem_limit_pct": 9.4
+        },
+        {
+          "name": "neuro-san-key-7-75b6794df4-hzsrq",
+          "cpu": "42m",
+          "mem_mi": 289,
+          "mem_limit_pct": 9.4
+        },
+        {
+          "name": "neuro-san-key-8-54d46449fb-2dqr7",
+          "cpu": "64m",
+          "mem_mi": 312,
+          "mem_limit_pct": 10.2
+        },
+        {
+          "name": "neuro-san-key-9-5668767f58-4mr69",
+          "cpu": "50m",
+          "mem_mi": 300,
+          "mem_limit_pct": 9.8
+        },
+        {
+          "name": "ui-node-deployment-6cc8cd7fb4-hgm7k",
+          "cpu": "1m",
+          "mem_mi": 137,
+          "mem_limit_pct": 4.5
+        }
+      ],
+      "pod_cpu_dist": {},
+      "nodes": [
+        {
+          "name": "aks-nodepool1-36758851-vmss000000",
+          "cpu": "507m",
+          "cpu_pct": 13,
+          "mem": "3366Mi",
+          "mem_pct": 22
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000001",
+          "cpu": "465m",
+          "cpu_pct": 12,
+          "mem": "3180Mi",
+          "mem_pct": 20
+        },
+        {
+          "name": "aks-nodepool1-36758851-vmss000002",
+          "cpu": "210m",
+          "cpu_pct": 5,
+          "mem": "2282Mi",
+          "mem_pct": 14
+        }
+      ],
+      "blob": {},
+      "_cumulative_in": 1382226,
+      "_cumulative_out": 86233
+    }
+  ]
+}

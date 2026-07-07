@@ -1,0 +1,61 @@
+{
+  "test_type": "hackathon_end_to_end",
+  "timestamp": "2026-07-06T11:05:51.651174+00:00",
+  "config": {
+    "vus": 2700,
+    "duration_min": 30,
+    "ramp_min": 8,
+    "model": "gpt-4o-mini",
+    "quota": 330000000
+  },
+  "summary": {
+    "peak_vu": 2700,
+    "peak_in_flight": 2171,
+    "total_requests": 24660,
+    "success_pct": 40.58,
+    "tokens_in": 8706351,
+    "tokens_out": 281827,
+    "tokens_total": 8988178,
+    "cost_usd": 1.475049,
+    "rate_limit": {
+      "total_429": 0,
+      "unique_users": 0,
+      "top_offenders": []
+    },
+    "turn_stats": {
+      "1": {
+        "count": 462,
+        "avg_input": 13037,
+        "avg_output": 416,
+        "avg_total": 13453
+      },
+      "2": {
+        "count": 100,
+        "avg_input": 15443,
+        "avg_output": 536,
+        "avg_total": 15979
+      },
+      "3": {
+        "count": 42,
+        "avg_input": 19182,
+        "avg_output": 592,
+        "avg_total": 19774
+      },
+      "4": {
+        "count": 15,
+        "avg_input": 19532,
+        "avg_output": 654,
+        "avg_total": 20186
+      },
+      "5": {
+        "count": 2,
+        "avg_input": 20110,
+        "avg_output": 782,
+        "avg_total": 20892
+      }
+    },
+    "p50_ms": 860,
+    "p95_ms": 138000,
+    "p99_ms": 145000
+  }
+}

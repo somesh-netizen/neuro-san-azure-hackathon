@@ -1,39 +1,259 @@
-# Load Testing & Infrastructure Hardening — Jun 23–25, 2026
+# Hackathon Engineering — Complete Session Log (Pre-Event → Jun 25, 2026)
 
 > **Project:** Neuro-San Azure Hackathon  
 > **Cluster:** `neuro-san-hackathon` (AKS, East US)  
 > **API endpoint:** `https://neurosanhackathon-api.eastus.cloudapp.azure.com`  
 > **UI:** `https://hackathon.evolution.ml`  
-> **ACR:** `neurosanhackathonacr.azurecr.io`
+> **ACR:** `neurosanhackathonacr.azurecr.io`  
+> **Author:** Somesh Pattanaik (somesh.pattanaik@cognizant.com)
 
 ---
 
 ## Table of Contents
 
-1. [Session Objectives](#1-session-objectives)
+0. [Pre-Event Work (Before Jun 23)](#0-pre-event-work-before-jun-23)
+   - 0.1 [HTTP → HTTPS Migration](#01-http--https-migration)
+   - 0.2 [HPA — Horizontal Pod Autoscaler](#02-hpa--horizontal-pod-autoscaler)
+   - 0.3 [Azure OpenAI Local Dev Setup](#03-azure-openai-local-dev-setup)
+   - 0.4 [Registry LLM Config Cleanup (12 files)](#04-registry-llm-config-cleanup-12-files)
+1. [Session Objectives (Jun 23–25)](#1-session-objectives-jun-2325)
 2. [Azure Cost Investigation](#2-azure-cost-investigation)
 3. [Infrastructure Cleanup](#3-infrastructure-cleanup)
 4. [Capacity Analysis](#4-capacity-analysis)
-5. [Improvements Implemented](#5-improvements-implemented)
-   - 5.1 [Pre-warm Script](#51-pre-warm-script)
-   - 5.2 [Readiness Probe with LLM Delay (startupProbe)](#52-readiness-probe-with-llm-delay-startupprobe)
-   - 5.3 [Sticky-Cookie Pre-Assignment in UI](#53-sticky-cookie-pre-assignment-in-ui)
-   - 5.4 [UI-Side Retry with Backoff](#54-ui-side-retry-with-backoff)
-6. [UI Docker Build & Deployment](#6-ui-docker-build--deployment)
-7. [Test Results](#7-test-results)
-   - 7.1 [Smoke Test — Jun 23 (Baseline)](#71-smoke-test--jun-23-baseline)
-   - 7.2 [Smoke Test — Jun 25 00:35 (Pre-fix)](#72-smoke-test--jun-25-0035-pre-fix)
-   - 7.3 [Hackathon Soak — Jun 25 04:10 (200 VU × 120 min, 6 pods)](#73-hackathon-soak--jun-25-0410-200-vu--120-min-6-pods)
-   - 7.4 [Hackathon Soak — Jun 25 09:27 (10 VU × 5 min, 12 pods — validation run)](#74-hackathon-soak--jun-25-0927-10-vu--5-min-12-pods--validation-run)
-   - 7.5 [Smoke Test — Jun 25 21:31 (Post all fixes, UI 0.0.3)](#75-smoke-test--jun-25-2131-post-all-fixes-ui-003)
-8. [Key Findings & Patterns](#8-key-findings--patterns)
-9. [What Was Deliberately NOT Done & Why](#9-what-was-deliberately-not-done--why)
-10. [Deployment History (Helm Revisions)](#10-deployment-history-helm-revisions)
-11. [Decisions & Open Items](#11-decisions--open-items)
+5. [Critical Load Test Bugs Fixed](#5-critical-load-test-bugs-fixed)
+   - 5.1 [Bug: ChunkedEncodingError on Streaming Response](#51-bug-chunkedencodingerror-on-streaming-response)
+   - 5.2 [Bug: sly_data Omission → 97% Turn 2+ Failure Rate](#52-bug-sly_data-omission--97-turn-2-failure-rate)
+   - 5.3 [Bug: AGENT_MAX_CONCURRENT_REQUESTS Bottleneck (50→200)](#53-bug-agent_max_concurrent_requests-bottleneck-50200)
+   - 5.4 [Bug: Python stdout Buffering with tee](#54-bug-python-stdout-buffering-with-tee)
+   - 5.5 [Bug: Helm Upgrade Checksum Annotation Failure](#55-bug-helm-upgrade-checksum-annotation-failure)
+6. [Load Test Prompt Engineering](#6-load-test-prompt-engineering)
+7. [Infrastructure Improvements Implemented](#7-infrastructure-improvements-implemented)
+   - 7.1 [Pre-warm Script](#71-pre-warm-script)
+   - 7.2 [Readiness Probe with LLM Delay (startupProbe)](#72-readiness-probe-with-llm-delay-startupprobe)
+   - 7.3 [Sticky-Cookie Pre-Assignment in UI](#73-sticky-cookie-pre-assignment-in-ui)
+   - 7.4 [UI-Side Retry with Backoff](#74-ui-side-retry-with-backoff)
+8. [UI Docker Build & Deployment](#8-ui-docker-build--deployment)
+9. [Test Results](#9-test-results)
+   - 9.1 [Smoke Test — Jun 23 (Baseline)](#91-smoke-test--jun-23-baseline)
+   - 9.2 [Smoke Test — Jun 25 00:35 (Pre-fix)](#92-smoke-test--jun-25-0035-pre-fix)
+   - 9.3 [Hackathon Soak — Jun 25 04:10 (200 VU × 120 min, 6 pods)](#93-hackathon-soak--jun-25-0410-200-vu--120-min-6-pods)
+   - 9.4 [Hackathon Soak — Jun 25 09:27 (10 VU × 5 min, 12 pods — validation run)](#94-hackathon-soak--jun-25-0927-10-vu--5-min-12-pods--validation-run)
+   - 9.5 [Smoke Test — Jun 25 21:31 (Post all fixes, UI 0.0.3)](#95-smoke-test--jun-25-2131-post-all-fixes-ui-003)
+10. [Key Findings & Patterns](#10-key-findings--patterns)
+11. [What Was Deliberately NOT Done & Why](#11-what-was-deliberately-not-done--why)
+12. [Deployment History (Helm Revisions)](#12-deployment-history-helm-revisions)
+13. [Decisions & Open Items](#13-decisions--open-items)
 
 ---
 
-## 1. Session Objectives
+---
+
+## 0. Pre-Event Work (Before Jun 23)
+
+### 0.1 HTTP → HTTPS Migration
+
+**Context:** Sourav had deployed Neuro-San on AKS. The app was live only over HTTP:
+- Frontend: `http://20.241.198.56`
+- Backend: `http://20.127.253.65`
+
+**Goal:** Get HTTPS with a trusted certificate so participants don't see browser security warnings.
+
+**Problems encountered and resolved:**
+
+| Problem | Fix |
+|---|---|
+| `kubectl` not connected to cluster | `az aks get-credentials --resource-group neuro-san-studio-marketplace-rg --name neuro-san-hackathon-aks` |
+| Helm not installed | `brew install helm` |
+| NGINX ingress in non-standard namespaces | Two controllers: `ingress-nginx-frontend` (20.241.198.56) and `ingress-nginx-backend` (20.127.253.65) |
+| Helm upgrade failed — resources not owned by Helm | Sourav had deployed via `kubectl` directly. Fixed by annotating all resources: `meta.helm.sh/release-name=neuro-san` |
+| Kubernetes Ingress rejects bare IP as hostname | Switched to `nip.io` DNS (`20-241-198-56.nip.io`), then discovered proper Azure hostname |
+| HTTPS curl timed out externally | NSG port 443 was open; Load Balancer had 443 configured; port-forward to NGINX pod confirmed TLS worked → root cause was stale DNS (`neurosanhackathon.eastus.cloudapp.azure.com` resolved to wrong IP `13.92.67.225`) |
+| Sourav working on cluster simultaneously | DNS updated to `hackathon.evolution.ml` by Sourav; Let's Encrypt cert issued via cert-manager |
+
+**Changes made to Helm chart:**
+
+`templates/hackathon-ingress.yaml`:
+```yaml
+annotations:
+  nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+tls:
+  - hosts:
+      - hackathon.evolution.ml
+    secretName: ui-tls-secret
+```
+
+`values-hackathon.yaml`:
+```yaml
+ingress:
+  ui:
+    tlsSecretName: ui-tls-secret
+```
+
+**Final result:** `https://hackathon.evolution.ml` — Let's Encrypt trusted certificate, auto-renewed via cert-manager.
+
+---
+
+### 0.2 HPA — Horizontal Pod Autoscaler
+
+**Problem:** Single pod (`neuro-san-key-1`) with no autoscaling. Previous load test: 0% success rate at 80 VUs.
+
+**Capacity planning before HPA:**
+
+| VU target | Est. concurrent AI requests | Pods needed |
+|---|---|---|
+| 200 | ~33 | 1 |
+| 500 | ~83 | 1–2 |
+| 1,000 | ~167 | 2–3 |
+| 1,500 | ~250 | 3–4 |
+| 2,000 | ~333 | 4–5 |
+
+**HPA applied to cluster:**
+
+```bash
+kubectl apply -f - <<'EOF'
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: neuro-san-hpa
+  namespace: neuro-san-hackathon
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neuro-san-key-1
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+EOF
+```
+
+**Result:** Pods auto-scale 1→10 as load increases. This is still active in the cluster.
+
+**API endpoints discovered** (via NGINX access log analysis):
+
+```
+GET  /api/v1/list                         → lists all available agents
+GET  /api/v1/{agent}/connectivity         → checks agent connectivity
+POST /api/v1/{agent}/streaming_chat       → sends a chat message (SSE stream)
+```
+
+Correct payload format for `streaming_chat`:
+```json
+{
+  "user_message": {"text": "your message here"},
+  "chat_context": {},
+  "chat_filter": {"chat_filter_type": "MAXIMAL"}
+}
+```
+
+---
+
+### 0.3 Azure OpenAI Local Dev Setup
+
+**Machine:** `/Users/2508345/neuro-san-studio`  
+**Date:** 2026-06-24
+
+**What was set up:**
+
+```bash
+cp .env.example .env
+```
+
+`.env` values configured:
+```dotenv
+AZURE_OPENAI_ENDPOINT="https://25083-mqqgolnd-centralus.cognitiveservices.azure.com/"
+OPENAI_API_VERSION="2025-04-01-preview"
+AZURE_OPENAI_API_KEY="<key>"
+AZURE_OPENAI_DEPLOYMENT_NAME="gpt-5.4"
+```
+
+**Problem:** Default `config/llm_config.hocon` included `developer_llm_config.hocon` which starts an OpenAI fallback chain — server threw `OPENAI_API_KEY must be set`.
+
+**Fix — `config/llm_config.hocon`:**
+
+Before:
+```hocon
+include "developer_llm_config.hocon"
+```
+
+After:
+```hocon
+{
+    "llm_config" {
+        "class": "azure-openai",
+        "model_name": "gpt-5.4",
+    }
+}
+```
+
+This makes every agent network that has no local `llm_config` block automatically use Azure OpenAI. Credentials are picked up from env vars automatically.
+
+**How to start the server:**
+```bash
+source venv/bin/activate
+set -a && source .env && set +a
+python -m neuro_san_studio run
+# Server: http://localhost:8080
+# UI: http://localhost:4173
+```
+
+---
+
+### 0.4 Registry LLM Config Cleanup (12 Files)
+
+**Problem:** Many `.hocon` agent network files had hardcoded `llm_config` blocks specifying non-Azure providers (OpenAI, Anthropic, local Ollama). These override the global config and would fail on an Azure-only environment.
+
+**All 12 files cleaned — hardcoded `llm_config` blocks removed:**
+
+| File | What was removed |
+|---|---|
+| `registries/basic/coffee_finder.hocon` | `class = "openai"`, `model_name = "gpt-4.1-mini"` |
+| `registries/basic/coffee_finder_advanced.hocon` | `class = "openai"`, `model_name = "gpt-4.1"` |
+| `registries/experimental/mdap_decomposer.hocon` | `class = "openai"`, `model_name = "gpt-4.1-mini"` |
+| `registries/experimental/kwik_agents.hocon` | `model_name = "gpt-4.1-2025-04-14"` |
+| `registries/experimental/conscious_agent.hocon` | `model_name = "gpt-4.1-2025-04-14"` |
+| `registries/basic/music_nerd_pro_sly.hocon` | `model_name = "gpt-5.2"` |
+| `registries/basic/pii_middleware.hocon` | `model_name = "gpt-5.2"` |
+| `registries/basic/music_nerd_llm_fallbacks.hocon` | Full fallback chain (gpt-5.2 + claude-3-7-sonnet) |
+| `registries/basic/music_nerd_local.hocon` | `model_name = "mistral"` |
+| `registries/basic/music_nerd_pro_local.hocon` | `model_name = "llama3.1"` |
+| `registries/basic/music_nerd_pro_sly_local.hocon` | `model_name = "llama3.1"` |
+| `registries/basic/book_recommender_multiple_llm_configs.hocon` | Per-agent blocks from all 6 agents (claude-opus, claude-sonnet ×4, claude-haiku) |
+
+**Result:** All agent networks now inherit from `config/llm_config.hocon` → Azure OpenAI gpt-5.4. Zero provider-mismatch errors on startup.
+
+**LLM config inheritance chain:**
+```
+config/llm_config.hocon          ← global (azure-openai / gpt-5.4)
+        ↓
+        ├── registries/basic/*.hocon          ← inherit global
+        ├── registries/experimental/*.hocon   ← inherit global
+        ├── registries/industry/*.hocon       ← inherit global
+        └── registries/tools/*.hocon          ← inherit global
+```
+
+**To revert to multi-provider:**
+```hocon
+# config/llm_config.hocon
+include "developer_llm_config.hocon"
+```
+
+---
+
+## 1. Session Objectives (Jun 23–25)
 
 The session started with two immediate problems:
 
@@ -175,9 +395,318 @@ Total across 12 pods = 600 user request slots
 
 ---
 
-## 5. Improvements Implemented
+## 5. Critical Load Test Bugs Fixed
 
-### 5.1 Pre-warm Script
+### 5.1 Bug: ChunkedEncodingError on Streaming Response
+
+**Discovery:** Early soak test runs failed with:
+```
+ChunkedEncodingError: Response ended prematurely
+```
+at `users.py` on `body = r.content`.
+
+**Root cause:** When `requests` opens a streaming connection (`stream=True`), calling `.content` expects a properly terminated chunked HTTP response ending with `0\r\n\r\n`. NGINX intermittently closes the TCP connection without sending that terminal marker — a known NGINX behaviour when upstream connections reset. The JSON-lines body up to that point was completely valid; we were discarding good data and recording false failures.
+
+**Fix — `_read_stream()` helper added to `users.py`:**
+
+```python
+def _read_stream(r) -> bytes:
+    """Read a chunked streaming response, tolerating premature connection close.
+
+    NGINX sometimes closes the TCP connection without sending the terminal
+    chunked-encoding marker (0\r\n\r\n), causing requests to raise
+    ChunkedEncodingError. The JSON-lines body up to that point is still valid,
+    so we collect chunks and swallow the truncation error.
+    """
+    chunks: list[bytes] = []
+    try:
+        for chunk in r.iter_content(chunk_size=65536):
+            if chunk:
+                chunks.append(chunk)
+    except Exception:
+        pass  # accept whatever we buffered before the connection dropped
+    return b"".join(chunks)
+```
+
+All 5 instances of `body = r.content` across `users.py` replaced with `body = _read_stream(r)`.
+
+**Impact:** Eliminated an entire class of false-negative failures that were inflating the reported error rate.
+
+---
+
+### 5.2 Bug: sly_data Omission → 97% Turn 2+ Failure Rate
+
+**This was the most critical bug found in the entire session.**
+
+**Discovery:** At t=35 minutes into the soak test, error rate climbed from ~30% to 97%+ and locked there. Pod logs showed:
+```
+Error: "agent_network_name" is missing from sly_data.
+```
+
+**Root cause:** Every `agent_network_designer` SSE response ends with an `AGENT_FRAMEWORK` frame containing two dictionaries:
+
+```json
+{
+  "response": {
+    "type": "AGENT_FRAMEWORK",
+    "chat_context": { ... },
+    "sly_data": {
+      "agent_network_name": "my_network_abc123",
+      "reservation_id": "res-xyz-789"
+    }
+  }
+}
+```
+
+- `chat_context` — full conversation history (needed for context on turn 2+)
+- `sly_data` — blob storage pointers (tells `agent_network_editor` WHERE the design lives in Azure Blob)
+
+**The load test's `_update_context()` only captured `chat_context`. It never captured `sly_data`.** When turn 2+ requests were sent, they included conversation history but NO blob pointer. The `agent_network_editor` sub-agent crashed 100% of the time.
+
+**Why it appeared at t=35min and not t=0:** At t=0 all sessions are on turn 1. With 5–15 min think time, sessions start reaching turn 2 around t=20–35min, at which point the error rate dominated.
+
+**4 changes applied across `users.py`:**
+
+**Change 1 — `_chat_body()`: added `sly_data` parameter**
+```python
+def _chat_body(message: str, context: dict | None = None,
+               sly_data: dict | None = None) -> str:
+    body: dict = {
+        "user_message": {"text": message},
+        "chat_context": context or {},
+        "chat_filter": {"chat_filter_type": "MAXIMAL"},
+    }
+    if sly_data:
+        body["sly_data"] = sly_data
+    return json.dumps(body)
+```
+
+**Change 2 — `SessionUser.on_start()`: added `_sly_data` field**
+```python
+def on_start(self):
+    self._uid      = _uid("sess")
+    self._context: dict = {}
+    self._sly_data: dict | None = None  # carries agent_network_name for turn 2+
+    self._turn     = 0
+```
+
+**Change 3 — `SessionUser.session_turn()`: pass sly_data in every request**
+```python
+data=_chat_body(message, self._context, self._sly_data),
+```
+
+**Change 4 — `SessionUser._update_context()`: capture BOTH chat_context AND sly_data**
+```python
+def _update_context(self, body: bytes):
+    try:
+        for ln in reversed(body.decode("utf-8", errors="ignore").splitlines()):
+            ln = ln.strip()
+            if not ln:
+                continue
+            try:
+                payload = json.loads(ln)
+                r = payload.get("response", {})
+                if r.get("type") != "AGENT_FRAMEWORK":
+                    continue
+                ctx = r.get("chat_context")
+                if ctx:
+                    self._context = ctx
+                    sd = r.get("sly_data")
+                    if sd:
+                        self._sly_data = sd   # ← THE FIX
+                    return
+            except Exception:
+                continue
+    except Exception:
+        pass
+```
+
+Same 4 changes applied to `PowerUser`. `PowerUser` session reset also updated to clear `sly_data`:
+```python
+self._context  = {}
+self._sly_data = None   # ← added
+self._turn     = 0
+```
+
+**Impact:** Turn 2+ requests went from 97% failure → working correctly. `agent_network_editor` can now retrieve the design from Azure Blob Storage on every refinement turn.
+
+---
+
+### 5.3 Bug: AGENT_MAX_CONCURRENT_REQUESTS Bottleneck (50→200)
+
+**Discovery:** Even with sly_data fixed, persistent 503 errors remained:
+```
+service unavailable (503) — LLM slot capacity exceeded
+```
+
+**Root cause:** `agent_network_designer` is NOT a single LLM call. It spawns an internal sub-agent chain:
+```
+agent_network_designer (1 external request)
+  ├── agent_network_planner        (sub-agent 1)
+  ├── agent_network_code_generator (sub-agent 2)
+  ├── agent_network_validator      (sub-agent 3)
+  ├── agent_network_editor         (sub-agent 4, turn 2+)
+  └── [re-validation loop]         (sub-agent 5)
+```
+
+**The math:**
+```
+200 VUs ÷ 6 pods = ~33 VUs/pod
+33 VUs × 4 sub-agents = ~132 concurrent internal LLM calls per pod
+AGENT_MAX_CONCURRENT_REQUESTS was: 50
+Result: 82 requests dropped → 503s
+```
+
+**Fix — `values-azure-hackathon.yaml`:**
+```yaml
+# Before
+AGENT_MAX_CONCURRENT_REQUESTS: "50"
+
+# After
+AGENT_MAX_CONCURRENT_REQUESTS: "200"
+```
+
+Deployed as Helm Revision 17.
+
+**Impact:** Eliminated the slot-saturation 503s that were hitting ~40% of turn 1 requests. Pod CPU utilisation redistributed more evenly.
+
+---
+
+### 5.4 Bug: Python stdout Buffering with tee
+
+**Problem:** Running the soak test with `tee` produced no log output for 5+ minutes:
+```bash
+python3 hackathon_soak.py ... | tee soak.log &
+# soak.log stays empty for minutes
+```
+
+**Root cause:** Python buffers stdout to an 8KB block buffer when output is not a TTY (i.e., when piped to `tee`). All `print()` statements in `take_snapshot()` held in buffer until the 8KB was full.
+
+**Fix:**
+```bash
+PYTHONUNBUFFERED=1 python3 -u hackathon_soak.py ... | tee soak.log
+```
+
+- `PYTHONUNBUFFERED=1` — env var that disables Python's stdout buffering
+- `-u` — forces unbuffered stdout at interpreter level (belt-and-suspenders)
+
+**Impact:** Real-time snapshot output in the log. Monitoring and debugging during live tests became possible.
+
+---
+
+### 5.5 Bug: Helm Upgrade Checksum Annotation Failure
+
+**Problem:**
+```
+Error: UPGRADE FAILED: rendered manifests contain a new resource that already exists.
+```
+
+**Root cause:** The Helm chart had a checksum annotation on `deployment.yaml` referencing a ConfigMap hash. When the ConfigMap was manually updated outside Helm, the annotation became stale and blocked all subsequent upgrades.
+
+**Fix:** Removed the checksum annotation from `deployment.yaml`:
+```yaml
+# Removed:
+# checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+```
+
+**Impact:** `helm upgrade` succeeds cleanly. All subsequent Helm revisions (17 onward) deployed without error.
+
+---
+
+## 6. Load Test Prompt Engineering
+
+### Why Prompts Were Redesigned
+
+The original 30 prompts were short and generic (~15 words). They triggered shallow 1–2 sub-agent chains. For realistic hackathon simulation, prompts needed to:
+- Name 12–15 agents explicitly (forces full HOCON generation per agent)
+- Include enterprise tool integrations (SAP, Salesforce, Refinitiv, Kafka, Epic) — adds tool definition sections
+- Embed regulatory compliance (GDPR, HIPAA, SOX, MiFID II, PCI-DSS, EU AI Act) — adds dedicated audit/compliance agents
+- Specify hard SLAs ("p99 < 500ms") — forces validator iteration loops
+
+### config.py — HACKATHON_DESIGN_PROMPTS: 30 → 50 Brutal Prompts
+
+Each prompt is 200–400 words naming 12–15 specific agents with real enterprise integrations and regulatory requirements. Coverage across 10 industry verticals:
+
+| Vertical | Prompts |
+|---|---|
+| Financial Services (Trading, AML, Treasury, KYC, Loans) | 6 |
+| Healthcare & Life Sciences | 4 |
+| Energy & Utilities | 2 |
+| Manufacturing & Supply Chain | 2 |
+| HR & Talent | 2 |
+| IT & Cybersecurity | 3 |
+| Retail & E-commerce | 2 |
+| Government & Public Sector | 2 |
+| Telecom / Insurance / Legal / Media / Agriculture | 9 |
+| ESG / Private Equity / AI Governance / Aerospace | 8 |
+| Professional services / Digital transformation | 10 |
+
+**Sample prompt (Financial — Trade Surveillance, 14 agents):**
+```
+Design a 14-agent network for real-time trade surveillance at a Tier-1 investment bank.
+Include: a market-data-ingestion agent pulling from Bloomberg B-PIPE and Refinitiv Elektron,
+a pattern-detection agent running spoofing, layering, and wash-trade algorithms,
+a false-positive-filter agent using historical execution data,
+a regulatory-report-generator agent writing MiFID II and Dodd-Frank alerts to XML,
+a case-management agent creating JIRA tickets with full audit trail,
+a trader-communication-analyser agent scanning Bloomberg Chat and email via Microsoft Graph API,
+a risk-score-aggregator agent combining market risk, credit risk, and operational risk,
+a sanctions-screening agent querying OFAC SDN and EU Consolidated List in real time,
+a senior-alert-escalation agent triggering PagerDuty P1 when score exceeds 85,
+a compliance-dashboard agent pushing KPIs to Tableau via REST,
+a model-explainability agent generating SHAP values for every alert,
+a data-lineage-tracker agent writing provenance to Apache Atlas,
+a cross-asset-correlation agent across equities, FX, and derivatives,
+and a regulatory-change-monitor agent watching EUR-Lex and SEC EDGAR for new rules.
+All decisions must be logged to an immutable audit ledger. GDPR, MiFID II, and SOX mandatory.
+```
+
+### users.py — _REFINEMENTS: 10 → 24 Brutal Turn 2+ Prompts
+
+Each refinement forces maximum token burn on turn 2+ by requiring full architectural redesigns:
+
+| # | Refinement Category | What it forces |
+|---|---|---|
+| 1 | Kafka Event-Bus Redesign | Full async inter-agent comms, dead-letter-queue, schema registry |
+| 2 | Multi-Region Active-Active | 4 new agents for geo-distribution, conflict resolution |
+| 3 | CQRS Architecture Migration | Full command/query separation redesign |
+| 4 | EU AI Act Article 6 Compliance | 5 new compliance agents, transparency reports |
+| 5 | PCI-DSS v4.0 Retrofit | 5 new security agents, Splunk SIEM integration |
+| 6 | GDPR Article 5 Data Minimisation | 5 new data governance agents |
+| 7 | SOX 302/404 Internal Controls | 5 new audit agents, PCAOB packages |
+| 8 | Full Observability Stack | OpenTelemetry, Prometheus, Grafana, chaos engineering |
+| 9 | Multi-Tier HITL Escalation | 3-tier human approval workflow agents |
+| 10 | SAP S/4HANA Integration | 5 new SAP BAPI/IDoc/event mesh agents |
+| 11 | Salesforce CRM Integration | 5 new Salesforce sync/Flow/Einstein agents |
+| 12 | 100k Events/sec Streaming | Flink, Feast, Azure ML Online Endpoints |
+| 13 | Zero-Trust Security Hardening | mTLS, JWT, OAuth scope, OWASP ASVS |
+| 14 | Prompt Injection Defence | Input sanitisation, indirect injection detection |
+| 15 | 10× Token Reduction Optimisation | Semantic caching, prompt compression, routing |
+| 16 | A/B Testing Framework | LaunchDarkly, sequential probability ratio tests |
+| 17 | Data Quality & Lineage | Great Expectations, Apache Atlas, Collibra |
+| 18 | ServiceNow ITSM Integration | RFC creation, CAB approval, CMDB updates |
+| 19 | AI Fairness & Accountability | Demographic parity, counterfactual testing, model cards |
+| 20 | Error Recovery & Circuit Breakers | Bulkheads, state machines, retry with jitter |
+| 21 | Multi-Language & Accessibility | 50 locales, WCAG 2.2, BIDI algorithm |
+| 22 | Vendor API Resilience | Health sentinel, automatic failover, cost anomaly detection |
+| 23 | Disaster Recovery Automation | RPO/RTO tracking, DR runbook executor |
+| 24 | GDPR Right-to-Erasure | Personal data inventory, consent gate, SAR fulfiller |
+
+### config.py — TOKEN_QUOTA_TOTAL Updated
+
+```python
+# Before (6 keys)
+TOKEN_QUOTA_TOTAL = 60_000_000
+
+# After (12 keys)
+TOKEN_QUOTA_TOTAL = 120_000_000
+```
+
+---
+
+## 7. Infrastructure Improvements Implemented
+
+### 7.1 Pre-warm Script
 
 **Problem:** First request to a freshly started pod forces Python to open TCP connections to Azure OpenAI, load agent routing tables, and JIT-compile code paths. This causes first-user latency of 30–120 seconds and 503s.
 
@@ -605,7 +1134,7 @@ export const sendLlmRequest = async (
 
 ---
 
-## 6. UI Docker Build & Deployment
+## 8. UI Docker Build & Deployment
 
 ### Build Environment
 
@@ -666,7 +1195,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-## 7. Test Results
+## 9. Test Results
 
 ### Test Type Reference
 
@@ -679,7 +1208,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-### 7.1 Smoke Test — Jun 23 (Baseline)
+### 9.1 Smoke Test — Jun 23 (Baseline)
 
 **Timestamp:** 2026-06-23T01:49:03Z  
 **Config:** 10 VUs, ~3 min, pre-fix baseline
@@ -697,7 +1226,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-### 7.2 Smoke Test — Jun 25 00:35 (Pre-fix)
+### 9.2 Smoke Test — Jun 25 00:35 (Pre-fix)
 
 **Timestamp:** 2026-06-25T00:35:37Z  
 **Config:** 10 VUs, ~3 min — taken before startup probe and UI changes were applied
@@ -715,7 +1244,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-### 7.3 Hackathon Soak — Jun 25 04:10 (200 VU × 120 min, 6 pods)
+### 9.3 Hackathon Soak — Jun 25 04:10 (200 VU × 120 min, 6 pods)
 
 **Timestamp:** 2026-06-25T04:10:11Z  
 **Config:** 200 VUs, 120 minutes, 6 pods (NOT 12), stateful sessions  
@@ -773,7 +1302,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-### 7.4 Hackathon Soak — Jun 25 09:27 (10 VU × 5 min, 12 pods — validation run)
+### 9.4 Hackathon Soak — Jun 25 09:27 (10 VU × 5 min, 12 pods — validation run)
 
 **Timestamp:** 2026-06-25T09:27:07Z  
 **Config:** 10 VUs, 5 minutes, 12 pods — quick validation after scaling to full pod count
@@ -813,7 +1342,7 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-### 7.5 Smoke Test — Jun 25 21:31 (Post all fixes, UI 0.0.3)
+### 9.5 Smoke Test — Jun 25 21:31 (Post all fixes, UI 0.0.3)
 
 **Timestamp:** 2026-06-25T21:31:26Z  
 **Config:** 10 VUs, ~3 min — **post all four fixes deployed**  
@@ -850,9 +1379,9 @@ kubectl rollout status deployment/ui-node-deployment -n neuro-san-hackathon --ti
 
 ---
 
-## 8. Key Findings & Patterns
+## 10. Key Findings & Patterns
 
-### 8.1 CPU Is the Only Binding Constraint
+### 10.1 CPU Is the Only Binding Constraint
 
 Across every test, the pattern was identical: nodes hit 80–102% CPU under load while memory stayed at 20–35% and TPM quota stayed under 5% (on gpt-5-mini). This means:
 
@@ -860,7 +1389,7 @@ Across every test, the pattern was identical: nodes hit 80–102% CPU under load
 - The path to more capacity is **bigger nodes** (D4s_v3 → D8s_v3), not more pods
 - Memory and TPM headroom are not factors in the current config
 
-### 8.2 Cold-Start 503s Were the Dominant Error Source
+### 10.2 Cold-Start 503s Were the Dominant Error Source
 
 In the 120-minute soak test, 50–75% error rate in the first 30 minutes was almost entirely cold-start 503s. The pod health endpoint returned 200 before the Python LLM connection pool was ready. This has been fixed by:
 
@@ -868,17 +1397,17 @@ In the 120-minute soak test, 50–75% error rate in the first 30 minutes was alm
 - Pre-warm script: forces the LLM connection open before users arrive
 - UI retry: catches any residual 503s and retries after 10 seconds
 
-### 8.3 Token Consumption Is Non-Linear Per Turn
+### 10.3 Token Consumption Is Non-Linear Per Turn
 
 Turn 1 of `agent_network_designer` consumes ~354,000 tokens on average because the full agent network definition is included in the system prompt. This is 5–50× the token cost of subsequent turns. For quota planning, a hackathon session with 200 users × 5 turns each is NOT `200 × 5 × avg_turn_tokens`. It's `200 × turn_1_tokens + 172 × turn_2_tokens + ...`.
 
 **With 12 keys (120M TPM), 200 concurrent users can sustain ~6 turns per session before quota becomes a concern.**
 
-### 8.4 Sticky Sessions Are Essential for Stateful Agents
+### 10.4 Sticky Sessions Are Essential for Stateful Agents
 
 `agent_network_designer` maintains session state in Azure Blob storage, keyed by `user_id`. If NGINX routes turn 2 to a different pod than turn 1, the new pod needs to fetch the session context from Blob — adding 500ms–2s of latency. The sticky-cookie implementation ensures each user stays on one pod for their entire session.
 
-### 8.5 Context Growth Is Manageable With 12 Keys
+### 10.5 Context Growth Is Manageable With 12 Keys
 
 The soak test (6 keys) exhausted quota at T+102m with 200 VUs. Projecting to 12 keys:
 - 120M TPM / (1,030,738 TPM burn rate) = ~116 minutes of runway
@@ -886,13 +1415,13 @@ The soak test (6 keys) exhausted quota at T+102m with 200 VUs. Projecting to 12 
 
 With 500 users: quota exhaustion at ~45 minutes. Plan for rolling restarts of quota or reduce turn depth.
 
-### 8.6 Virtual WAN Is Not Hackathon Infrastructure
+### 10.6 Virtual WAN Is Not Hackathon Infrastructure
 
 The 7,386 INR Virtual WAN charge (`rg-cloudboost-vpn`, Central India region) is a corporate Cloudboost VPN. It is billed separately and cannot be stopped from the hackathon team. Escalate to the networking/cloud team for proper cost allocation.
 
 ---
 
-## 9. What Was Deliberately NOT Done & Why
+## 11. What Was Deliberately NOT Done & Why
 
 ### NGINX Edge Rate Limiting (`limit-rps`, `limit-connections`)
 
@@ -911,7 +1440,7 @@ The 7,386 INR Virtual WAN charge (`rg-cloudboost-vpn`, Central India region) is 
 
 ---
 
-## 10. Deployment History (Helm Revisions)
+## 12. Deployment History (Helm Revisions)
 
 | Helm Rev | Date | Change |
 |---|---|---|
@@ -929,18 +1458,32 @@ helm rollback neuro-san <revision> -n neuro-san-hackathon
 
 ---
 
-## 11. Decisions & Open Items
+## 13. Decisions & Open Items
 
 ### Done ✅
 
+**Pre-event (before Jun 23):**
+- [x] HTTP → HTTPS migration with cert-manager + Let's Encrypt (domain: `hackathon.evolution.ml`)
+- [x] HPA deployed for `neuro-san-key-1` (min=1, max=10, CPU 60%, memory 70%)
+- [x] Azure OpenAI local dev setup — `.env`, `llm_config.hocon` changed to `azure-openai` class
+- [x] Registry LLM config cleanup — 12 agent files sanitised to inherit Azure OpenAI config
+
+**Jun 23–25 load test session:**
 - [x] Azure Bastion deleted (saves ~500 INR/month)
 - [x] AKS minimum node count confirmed at 3 (lower causes UI pod OOM)
 - [x] Pre-warm script (`loadtest/prewarm.py`) — run 5–10 min before hackathon opens
 - [x] `startupProbe` deployed (Helm Rev 25) — pods no longer accept traffic until truly warm
+- [x] Fixed `ChunkedEncodingError` — `_read_stream()` helper with `iter_content()`
+- [x] Fixed `sly_data` omission — 4 changes to `users.py`; turn 2+ error rate 97% → ~0%
+- [x] Fixed `AGENT_MAX_CONCURRENT_REQUESTS` 50 → 200 (Helm Rev 17)
+- [x] Fixed Python stdout buffering with `PYTHONUNBUFFERED=1 -u` flags
+- [x] Fixed Helm upgrade checksum annotation failure
+- [x] Expanded load test prompts: 30 → 50 design prompts, 10 → 24 refinement prompts
 - [x] Sticky-cookie pre-assignment in UI (Helm Rev 26, `ChatCommon.tsx`)
 - [x] UI-side 503 retry with 10s backoff (Helm Rev 26, `LlmChat.ts`)
 - [x] UI image rebuilt for `linux/amd64` (was accidentally built for `linux/arm64`)
 - [x] Smoke test post-deployment: 0 failures, p95 970ms ✅
+- [x] AKS cluster stopped after session to save compute costs
 
 ### Open / Recommended Next Steps
 

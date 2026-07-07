@@ -4,9 +4,11 @@ datadog:
   clusterName: neuro-san-hackathon
 
 # One Deployment per Azure OpenAI key; replicasPerKey pods each.
-# 12 keys × 1 pod each = 12 pods total.
+# 11 keys × 1 pod each = 11 pods total.
 # Each pod uses a distinct Azure OpenAI resource (distinct endpoint + key).
-# Each resource has a 10M TPM quota → Total quota: 12 × 10M = 120M TPM.
+# Each resource has a 30M TPM quota → Total quota: 11 × 30M = 330M TPM.
+# NOTE: tokens are NOT the bottleneck (a CPU-bound pod burns <10M TPM); the
+# real ceiling is CPU. See templates/deployment.yaml resources + node pool.
 #
 # Key → Resource mapping:
 #  1  → 25083-mqryb3vb-southcentralus      (existing)
@@ -17,7 +19,9 @@ datadog:
 #  6  → 25083-mqqgg6gs-swedencentral        (existing)
 #  7  → 25083-mqszfieo-westus               (new)
 #  8  → 25083-mqt02653-westeurope           (new)
-#  9  → 25083-mqsztdx2-southeastasia        (new)
+#  9  → DROPPED: 25083-mqsztdx2-southeastasia had NO model deployment
+#       (Southeast Asia lacks gpt-4o-mini GlobalStandard entitlement). The pod
+#       reported Ready but every LLM call 404'd → ~8% of sticky users failed.
 #  10 → 25083-mqt06fkz-francecentral        (new)
 #  11 → 25083-mqszostk-westus3              (new)
 #  12 → 25083-mqszy2vy-southindia           (new)
@@ -30,11 +34,17 @@ openaiKeys:
   - id: "6"
   - id: "7"
   - id: "8"
-  - id: "9"
   - id: "10"
   - id: "11"
   - id: "12"
 replicasPerKey: 1
+
+# Backend pods are pinned to a dedicated D16s_v3 node pool, one pod per node.
+# A 12-vCPU CPU request guarantees exactly one backend pod lands per node
+# (2 × 12 = 24 > ~15 allocatable), eliminating the noisy-neighbour CPU
+# contention that caused the 94%-error soak collapse. No CPU limit → a pod can
+# burst to the whole node during a design fan-out.
+backendNodepool: "pool16"
 
 image:
   ui:
@@ -48,9 +58,19 @@ image:
 
 resources:
   requests:
-    memory: "2000Mi"
+    memory: "8Gi"      # was 3Gi
+    cpu: "12"          # guarantees 1 backend pod per D16s_v3 node (dedicated CPU)
   limits:
-    memory: "3000Mi"
+    memory: "48Gi"     # was 6Gi → pods hit 97.6% of 6Gi and OOMKilled 7-8× under load
+                       # with 16 server processes. D16 = 64GB, 1 pod/node, so 48Gi is
+                       # safe headroom (leaves ~16GB for the OS) and eliminates OOM.
+    # no cpu limit on purpose: let a design fan-out burst to the full node
+
+# UI (Next.js) serves the app shell + light API routes to the login wave.
+# replicas:1 was a single funnel for 2500 concurrent page loads → scale out.
+# (Auth is currently OFF; if you enable Auth0 for the event, raise this further.)
+# 6 replicas × 500m = 3 vCPU on the D4 system pool (nodepool1) — comfortable.
+uiReplicas: 6
 
 # Azure Workload Identity
 # Fill in UAMI_CLIENT_ID after running: az identity show -g <RG> -n neuro-san-wi --query clientId -o tsv
@@ -83,6 +103,10 @@ AGENT_NETWORK_DESIGNER_USE_RESERVATIONS: true
 AGENT_NETWORK_DESIGNER_RESERVATIONS_LIFETIME_IN_SECONDS: 604800
 AGENT_NETWORK_DESIGNER_PROGRESS_STYLE: connectivity
 AGENT_MAX_CONCURRENT_REQUESTS: "250"
+# Fork one HTTP server process (own event loop) per core. Default is 1 → a single
+# event loop that maxed ~1 of the D16's 16 cores and saturated on concurrent SSE
+# streams (couldn't answer /livez → pods were killed). 16 uses the whole node.
+AGENT_HTTP_SERVER_INSTANCES: "16"
 LEAF_LOG_SENSITIVE: "true"
 
 # Azure OpenAI shared config (same deployment name and API version for all pods).

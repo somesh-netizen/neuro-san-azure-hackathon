@@ -2,3 +2,12 @@
 *.local.yaml
 *.secret.yaml
 /tmp/
+
+# Load test
+loadtest/.venv/
+loadtest/__pycache__/
+loadtest/reports/*.json
+loadtest/reports/*.csv
+loadtest/reports/*.html
+loadtest/reports/*.log
+!loadtest/reports/.gitkeep

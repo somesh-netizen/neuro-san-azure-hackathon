@@ -1,0 +1,102 @@
+{
+  "test_label": "smoke",
+  "timestamp": "2026-06-23T01:49:03.375631+00:00",
+  "duration_seconds": 180.8,
+  "total_requests": 315,
+  "total_failures": 0,
+  "error_rate_pct": 0.0,
+  "avg_rps": 2.11,
+  "median_ms": 240,
+  "avg_ms": 440.8,
+  "p95_ms": 960,
+  "p99_ms": 2900,
+  "endpoints": {
+    "POST /api/v1/{agent}/streaming_chat POST": {
+      "method": "POST /api/v1/{agent}/streaming_chat",
+      "name": "POST",
+      "requests": 94,
+      "failures": 0,
+      "error_pct": 0.0,
+      "median_ms": 240,
+      "avg_ms": 411.7,
+      "p95_ms": 800,
+      "p99_ms": 2900,
+      "min_ms": 216.3,
+      "max_ms": 2945.8,
+      "rps": 0.63
+    },
+    "GET /api/v1/list GET": {
+      "method": "GET /api/v1/list",
+      "name": "GET",
+      "requests": 101,
+      "failures": 0,
+      "error_pct": 0.0,
+      "median_ms": 240,
+      "avg_ms": 458.3,
+      "p95_ms": 1000,
+      "p99_ms": 1100,
+      "min_ms": 219.9,
+      "max_ms": 2953.0,
+      "rps": 0.68
+    },
+    "POST /api/v1/{agent}/streaming_chat (multi-turn) POST": {
+      "method": "POST /api/v1/{agent}/streaming_chat (multi-turn)",
+      "name": "POST",
+      "requests": 46,
+      "failures": 0,
+      "error_pct": 0.0,
+      "median_ms": 240,
+      "avg_ms": 325.4,
+      "p95_ms": 630,
+      "p99_ms": 3000,
+      "min_ms": 233.6,
+      "max_ms": 2954.1,
+      "rps": 0.31
+    },
+    "GET /api/v1/{agent}/connectivity GET": {
+      "method": "GET /api/v1/{agent}/connectivity",
+      "name": "GET",
+      "requests": 40,
+      "failures": 0,
+      "error_pct": 0.0,
+      "median_ms": 640,
+      "avg_ms": 739.4,
+      "p95_ms": 920,
+      "p99_ms": 3400,
+      "min_ms": 617.3,
+      "max_ms": 3394.8,
+      "rps": 0.27
+    },
+    "GET /readyz GET": {
+      "method": "GET /readyz",
+      "name": "GET",
+      "requests": 34,
+      "failures": 0,
+      "error_pct": 0.0,
+      "median_ms": 230.8,
+      "avg_ms": 273.6,
+      "p95_ms": 580,
+      "p99_ms": 720,
+      "min_ms": 230.8,
+      "max_ms": 723.3,
+      "rps": 0.23
+    }
+  },
+  "thresholds": {
+    "error_rate_lt_5pct": {
+      "passed": true,
+      "actual": "0.0%",
+      "limit": "5%"
+    },
+    "p95_latency_lt_30s": {
+      "passed": true,
+      "actual": "1.0s",
+      "limit": "30s"
+    },
+    "min_1000_requests": {
+      "passed": false,
+      "actual": "315",
+      "limit": "\u2265 1,000"
+    }
+  }
+}
