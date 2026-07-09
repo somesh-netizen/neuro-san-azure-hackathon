@@ -10,6 +10,7 @@ BurstUser        (weight 1) — rapid short-think-time requests; stress concurre
 
 import json
 import random
+import re
 import time
 
 import requests
@@ -26,7 +27,13 @@ from config import (
     THINK_TIME_MAX,
     THINK_TIME_MIN,
 )
-from metrics import in_flight, rate_limit_tracker, token_tracker, turn_tracker
+from metrics import (
+    in_flight,
+    latency_tracker,
+    rate_limit_tracker,
+    token_tracker,
+    turn_tracker,
+)
 
 
 def _frontend_login(user) -> None:
@@ -72,6 +79,42 @@ def _read_stream(r) -> bytes:
     except Exception:
         pass  # accept whatever we buffered before the connection dropped
     return b"".join(chunks)
+
+
+def _read_stream_timed(r, t0: float) -> tuple[bytes, float | None]:
+    """Like _read_stream, but also returns time-to-first-stream-event (seconds from t0).
+
+    ttft = when the FIRST body byte arrives (the design started responding), measured
+    from just before the request was sent. Returns (body, ttft_seconds); ttft is None
+    if the stream produced nothing. Used to record real design latency (see metrics
+    .latency_tracker) instead of the login-GET-diluted aggregate percentiles.
+    """
+    chunks: list[bytes] = []
+    ttft: float | None = None
+    try:
+        for chunk in r.iter_content(chunk_size=65536):
+            if chunk:
+                if ttft is None:
+                    ttft = time.monotonic() - t0
+                chunks.append(chunk)
+    except Exception:
+        pass
+    return b"".join(chunks), ttft
+
+
+_ASSET_RE = re.compile(r'(?:href|src)="(/_next/[^"]+?\.(?:js|css)|/[^"]+?\.(?:js|css))"')
+
+
+def _extract_assets(html: str) -> list[str]:
+    """Pull the JS/CSS bundle URLs a browser would fetch to render the Next.js shell."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for m in _ASSET_RE.finditer(html or ""):
+        u = m.group(1)
+        if u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out
 
 
 def _extract_tokens(body: bytes) -> tuple[int, int]:
@@ -796,6 +839,7 @@ class SessionUser(HttpUser):
         # and avoids session death from a brief pod restart or Azure rate-limit blip.
         for attempt in range(2):
             in_flight.inc()   # this design is now running (concurrency gauge)
+            t0 = time.monotonic()
             try:
                 with self.client.post(
                     "/api/v1/agent_network_designer/streaming_chat",
@@ -807,8 +851,11 @@ class SessionUser(HttpUser):
                     stream=True,
                 ) as r:
                     if r.status_code == 200:
-                        body = _read_stream(r)
+                        body, ttft = _read_stream_timed(r, t0)
                         if body:
+                            # Real design latency (TTFT + full duration), separate from
+                            # the fast login GETs that otherwise dominate the percentiles.
+                            latency_tracker.record(ttft, time.monotonic() - t0)
                             inp, out = _extract_tokens(body)
                             if inp or out:
                                 token_tracker.record(inp, out)
@@ -867,3 +914,69 @@ class SessionUser(HttpUser):
                     continue
         except Exception:
             pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+class FrontendUser(HttpUser):
+    """Simulates a participant's BROWSER first-loading the Next.js UI — the login wave.
+
+    The backend load tests fire only 2 GETs at the UI (SessionUser._frontend_login),
+    which barely touches the UI tier. This class reproduces what a real browser pulls
+    on first load, so the ~6 UI pods are actually stressed:
+
+      1. GET /                       — the app-shell HTML
+      2. GET /api/environment        — the UI's runtime config route (Node handler)
+      3. GET /api/auth/session       — NextAuth session probe (Node handler)
+      4. GET /_next/static/*.{js,css}— the JS/CSS bundle the browser must download to render
+
+    host is set to FRONTEND_URL by frontend_test.py. This is a UI-TIER test: it does NOT
+    drive the backend design workload (that's SessionUser / hackathon_test.py) and it is
+    still an HTTP-level test, not a headless browser — it fetches the shell + bundle bytes
+    and the on-load API routes, which is what saturates the Node UI pods during a stampede.
+    """
+    weight    = 1
+    # A real participant loads the page once, then reads/clicks for a while — they do
+    # NOT re-pull the whole bundle every second. The arrival BURST (the stampede) comes
+    # from the ramp spawning all VUs in ~60s; wait_time governs post-load behaviour.
+    wait_time = between(15, 45)
+
+    def on_start(self):
+        self._uid = _uid("fe")
+
+    @task
+    def load_app(self):
+        # 1. app shell — parse it for the static bundle URLs a browser would then fetch
+        assets: list[str] = []
+        with self.client.get(
+            "/", headers={"user_id": self._uid}, timeout=FAST_TIMEOUT * 3,
+            name="GET / (app shell)", catch_response=True,
+        ) as r:
+            if r.status_code == 200:
+                assets = _extract_assets(r.text)
+                r.success()
+            else:
+                r.failure(f"shell → {r.status_code}")
+
+        # 2. the UI's own API routes the browser calls on load (Node handlers on the UI pod)
+        for path, name in (("/api/environment",  "GET /api/environment"),
+                           ("/api/auth/session", "GET /api/auth/session")):
+            with self.client.get(
+                path, headers={"user_id": self._uid}, timeout=FAST_TIMEOUT * 3,
+                name=name, catch_response=True,
+            ) as r:
+                # 401/403 on the session route (unauthenticated) is expected — not a failure.
+                if r.status_code < 400 or r.status_code in (401, 403):
+                    r.success()
+                else:
+                    r.failure(f"{name} → {r.status_code}")
+
+        # 3. the JS/CSS bundle — the real byte weight the UI pod serves per page load
+        for a in assets[:15]:
+            with self.client.get(
+                a, headers={"user_id": self._uid}, timeout=FAST_TIMEOUT * 3,
+                name="GET /_next/static/* (bundle)", catch_response=True,
+            ) as r:
+                if r.status_code < 400:
+                    r.success()
+                else:
+                    r.failure(f"asset → {r.status_code}")

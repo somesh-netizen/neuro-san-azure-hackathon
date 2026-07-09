@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: loadgen
+  namespace: neuro-san-hackathon
+  labels:
+    app: loadgen
+spec:
+  serviceAccountName: unileaf-account
+  imagePullSecrets:
+    - name: acr-pull-secret
+  nodeSelector:
+    role: loadgen
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: loadgen
+      effect: NoSchedule
+  containers:
+    - name: loadgen
+      image: neurosanhackathonacr.azurecr.io/neuro-san/neuro-san-studio:0.0.3
+      command: ["sleep", "infinity"]
+      env:
+        - name: KUBECONFIG
+          value: /etc/loadgen-kube/config
+        - name: PYTHONUNBUFFERED
+          value: "1"
+      volumeMounts:
+        - name: kubeconfig
+          mountPath: /etc/loadgen-kube
+          readOnly: true
+  volumes:
+    - name: kubeconfig
+      secret:
+        secretName: loadgen-kubeconfig

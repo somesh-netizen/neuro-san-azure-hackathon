@@ -1,0 +1,17 @@
+{
+  "test_type": "frontend_login_wave",
+  "timestamp": "2026-07-09T01:03:08.603549+00:00",
+  "config": {
+    "vus": 100,
+    "duration_min": 1,
+    "ramp_min": 1
+  },
+  "summary": {
+    "total_requests": 15366,
+    "success_pct": 100.0,
+    "failures": 0,
+    "p50_ms": 76,
+    "p95_ms": 260,
+    "p99_ms": 350
+  }
+}

@@ -221,14 +221,34 @@
       "Bash(kubectl -n neuro-san-hackathon exec loadgen -- sh -c 'ls -t /tmp/loadtest/reports/run_*.log 2>/dev/null; echo \"--- hackathon_test reports ---\"; ls -t /tmp/loadtest/reports/hackathon_test_*.json 2>/dev/null')",
       "Bash(kubectl -n neuro-san-hackathon exec loadgen -- sh -c 'L=$\\(ls -t /tmp/loadtest/reports/run_*.log 2>/dev/null | head -1\\); echo \"newest: $L\"; grep -q \"RESULT\" \"$L\" && echo COMPLETE || echo \"NO RESULT YET \\(running or was killed\\)\"; echo \"--- last 3 lines ---\"; tail -3 \"$L\"')",
       "Bash(kubectl -n neuro-san-hackathon cp loadgen:/tmp/loadtest/reports ./loadtest/reports_archive/pod_reports_final)",
-      "Bash(cp \"/Users/2508345/Desktop/Load testing Details July 6th 2026.md\" \"/Users/2508345/Downloads/neuro-san-deploy-main/neuro-san-azure-hackathon/Load testing Details July 6th 2026.md\" *)"
+      "Bash(cp \"/Users/2508345/Desktop/Load testing Details July 6th 2026.md\" \"/Users/2508345/Downloads/neuro-san-deploy-main/neuro-san-azure-hackathon/Load testing Details July 6th 2026.md\" *)",
+      "Bash(az monitor *)",
+      "Bash(python3 -c \"from config import AZURE_OPENAI_RESOURCES; [print\\(f'{k:>3}  {r}  \\(rg={g}\\)'\\) for k,r,g in AZURE_OPENAI_RESOURCES]\")",
+      "Bash(python3 -c \"from config import AZURE_OPENAI_RESOURCES; [print\\(f'{k:>3}  {r:<40}  rg={g}'\\) for k,r,g in AZURE_OPENAI_RESOURCES]\")",
+      "Bash(az config *)",
+      "Bash(az quota *)",
+      "Bash(az support *)",
+      "Bash(awk '{print \"  eastus: used \"$1\" / limit \"$2\"  -> free = \"$2-$1}')",
+      "Bash(cd /Users/2508345/Downloads/neuro-san-deploy-main/neuro-san-azure-hackathon/loadtest *)",
+      "Bash(python3 -m py_compile metrics.py users.py hackathon_test.py frontend_test.py)",
+      "Bash(bash -n chaos_drill.sh)",
+      "Bash(chmod +x chaos_drill.sh)",
+      "Bash(grep -iA2 -B2 \"ui\")",
+      "Bash(kubectl -n neuro-san-hackathon exec loadgen -- sh -c 'ls -t /tmp/loadtest/reports/realistic_*.log | head -1')",
+      "Bash(kubectl -n neuro-san-hackathon exec loadgen -- sh -c 'ps -ef 2>/dev/null | grep -c \"[h]ackathon_test\" || echo \"ps n/a\"')",
+      "Bash(kubectl -n neuro-san-hackathon exec loadgen -- sh -c 'tail -130 __CMDSUB_OUTPUT__')",
+      "Bash(UI=/Users/2508345/neuro-san-ui *)",
+      "Read(//Users/2508345/neuro-san-ui/**)",
+      "Read(//Users/2508345/neuro-san-ui/packages/ui-common/components/AgentChat/ChatCommon/**)",
+      "Bash(python3 -m py_compile e2e_playwright.py)"
     ],
     "additionalDirectories": [
       "/Users/2508345/neuro-san-studio",
       "/Users/2508345/Desktop",
       "/Users/2508345/Library/CloudStorage/OneDrive-Cognizant/Desktop",
       "/Users/2508345/neuro-san-ui/packages/ui-common/controller/llm",
-      "/Users/2508345/neuro-san-ui/packages/ui-common/components/AgentChat/ChatCommon"
+      "/Users/2508345/neuro-san-ui/packages/ui-common/components/AgentChat/ChatCommon",
+      "/Users/2508345/Downloads/neuro-san-deploy-main/neuro-san-azure-hackathon/loadtest"
     ]
   }
 }

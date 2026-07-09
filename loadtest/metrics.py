@@ -165,6 +165,58 @@ class InFlightGauge:
 in_flight = InFlightGauge()
 
 
+class LatencyTracker:
+    """Records DESIGN latency separately from the fast login/UI GETs.
+
+    The aggregate Locust p50/p95 are swamped by the many sub-second login GETs, so
+    they read ~0s even when a design takes minutes. This tracker records ONLY the
+    design POSTs, giving the real participant experience:
+      • ttft   — time-to-first-stream-event (request sent → first streamed byte).
+                 What a user feels as "did it start responding?".
+      • design — full design duration (request sent → whole stream drained).
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._ttft: list[float] = []   # seconds
+        self._dur:  list[float] = []   # seconds
+
+    def record(self, ttft_s: float | None, duration_s: float) -> None:
+        with self._lock:
+            if ttft_s is not None:
+                self._ttft.append(ttft_s)
+            self._dur.append(duration_s)
+
+    @staticmethod
+    def _pct(vals: list[float], q: float) -> float:
+        if not vals:
+            return 0.0
+        s = sorted(vals)
+        return s[min(len(s) - 1, int(q * len(s)))]
+
+    def snapshot(self) -> dict:
+        with self._lock:
+            ttft, dur = list(self._ttft), list(self._dur)
+        return {
+            "ttft_count":   len(ttft),
+            "ttft_p50":     round(self._pct(ttft, 0.50), 1),
+            "ttft_p95":     round(self._pct(ttft, 0.95), 1),
+            "ttft_p99":     round(self._pct(ttft, 0.99), 1),
+            "design_count": len(dur),
+            "design_p50":   round(self._pct(dur, 0.50), 1),
+            "design_p95":   round(self._pct(dur, 0.95), 1),
+            "design_p99":   round(self._pct(dur, 0.99), 1),
+            "design_max":   round(max(dur), 1) if dur else 0.0,
+        }
+
+    def reset(self) -> None:
+        with self._lock:
+            self._ttft, self._dur = [], []
+
+
+latency_tracker = LatencyTracker()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # COST ESTIMATION
 # ═══════════════════════════════════════════════════════════════════════════════

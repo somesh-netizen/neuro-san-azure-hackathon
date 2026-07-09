@@ -1,0 +1,65 @@
+
+========================================================================
+  FRONTEND / LOGIN-WAVE LOAD TEST  (UI tier)
+========================================================================
+  Host        : https://hackathon.evolution.ml
+  Peak VUs    : 100   (ramp 1 min @ 2/s, then hold)
+  Duration    : 1 min
+  Each VU     : GET / (shell) + /api/environment + /api/auth/session + JS/CSS bundle
+========================================================================
+WARNING:root:CPU usage above 90%! This may constrain your throughput and may even give inconsistent response time measurements! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
+
+────────────────────────────────────────────────────────────────────────
+  t= 0.5m   VUs 51/100   RPS 276   reqs 5,971   err 0.0%
+  p50 27ms   p95 140ms   p99 180ms
+────────────────────────────────────────────────────────────────────────
+  UI PODS  (6 replicas, peak CPU 4%):
+     loyment-5674d5d9d9-gqlql  cpu   4.0%   mem   2.1%   (79m)
+     loyment-5674d5d9d9-ss4ms  cpu   3.4%   mem   2.1%   (68m)
+     loyment-5674d5d9d9-krdfd  cpu   2.1%   mem   2.1%   (43m)
+     loyment-5674d5d9d9-n8bml  cpu   1.8%   mem   2.0%   (37m)
+     loyment-5674d5d9d9-f8z7x  cpu   1.0%   mem   2.0%   (20m)
+     loyment-5674d5d9d9-bx7n5  cpu   0.4%   mem   2.0%   (7m)
+  NODES    : vmss000001 cpu 2% mem 1%  |  vmss00000a cpu 4% mem 6%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 1% mem 5%  |  vmss00000d cpu 1% mem 5%  |  vmss00000e cpu 1% mem 5%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 0% mem 5%  |  vmss00000h cpu 0% mem 6%  |  vmss00000i cpu 1% mem 5%  |  vmss00000j cpu 1% mem 6%  |  vmss00000k cpu 3% mem 6%  |  vmss00000l cpu 4% mem 8%  |  vmss00000m cpu 1% mem 5%  |  vmss00000n cpu 1% mem 5%
+  BY ENDPOINT (p95 ms / reqs):
+     GET / (app shell)                  p95     82   n     339   fail     0
+     GET /_next/static/* (bundle)       p95    140   n   4,957   fail     0
+     GET /api/auth/session              p95     46   n     337   fail     0
+     GET /api/environment               p95     57   n     338   fail     0
+
+────────────────────────────────────────────────────────────────────────
+  t= 1.0m   VUs 99/100   RPS 300   reqs 15,316   err 0.0%
+  p50 170ms   p95 340ms   p99 420ms
+────────────────────────────────────────────────────────────────────────
+  UI PODS  (6 replicas, peak CPU 4%):
+     loyment-5674d5d9d9-gqlql  cpu   4.0%   mem   2.1%   (79m)
+     loyment-5674d5d9d9-ss4ms  cpu   3.4%   mem   2.1%   (68m)
+     loyment-5674d5d9d9-krdfd  cpu   2.1%   mem   2.1%   (43m)
+     loyment-5674d5d9d9-n8bml  cpu   1.8%   mem   2.0%   (37m)
+     loyment-5674d5d9d9-f8z7x  cpu   1.0%   mem   2.0%   (20m)
+     loyment-5674d5d9d9-bx7n5  cpu   0.4%   mem   2.0%   (7m)
+  NODES    : vmss000001 cpu 2% mem 1%  |  vmss00000a cpu 4% mem 6%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 1% mem 5%  |  vmss00000d cpu 1% mem 5%  |  vmss00000e cpu 1% mem 5%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 0% mem 5%  |  vmss00000h cpu 0% mem 6%  |  vmss00000i cpu 1% mem 5%  |  vmss00000j cpu 1% mem 6%  |  vmss00000k cpu 3% mem 6%  |  vmss00000l cpu 4% mem 8%  |  vmss00000m cpu 1% mem 5%  |  vmss00000n cpu 1% mem 5%
+  BY ENDPOINT (p95 ms / reqs):
+     GET / (app shell)                  p95    290   n     888   fail     0
+     GET /_next/static/* (bundle)       p95    260   n  12,664   fail     0
+     GET /api/auth/session              p95    250   n     879   fail     0
+     GET /api/environment               p95    210   n     885   fail     0
+WARNING:locust.runners:CPU usage was too high at some point during the test! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
+
+========================================================================
+  RESULT — frontend / login-wave test
+========================================================================
+  Total requests   : 15,366   success 100.00%   (0 failed)
+  Latency  p50 76ms  p95 260ms  p99 350ms
+  UI pods peak CPU : 4%   (6 replicas)
+  PASS if: 5xx < 1%, no UI pod restarts, p95 shell < 3-5s, UI CPU not pinned
+========================================================================
+
+  Report saved → /tmp/loadtest/reports/frontend_test_20260709_010204.json
+
+Exception ignored in: <function _removeHandlerRef at 0x7f95bb15b100>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/logging/__init__.py", line 893, in _removeHandlerRef
+  File "/usr/local/lib/python3.13/threading.py", line 202, in acquire
+  File "/usr/local/neuro-san/.local/lib/python3.13/site-packages/gevent/thread.py", line 81, in get_ident
+RuntimeError: greenlet is being finalized

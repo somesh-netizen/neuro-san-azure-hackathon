@@ -1,0 +1,1894 @@
+
+========================================================================
+  HACKATHON END-TO-END LOAD TEST
+========================================================================
+  Host          : https://neurosanhackathon-api.eastus.cloudapp.azure.com
+  Peak VUs      : 2500   (ramp 10 min @ 4.2/s, then hold)
+  Duration      : 60 min   (production settings; extrapolate to 90)
+  Model / quota : gpt-4o-mini   ceiling 330,000,000 TPM (context only)
+  Each VU       : login (UI) → design → refine 1-6× closed-loop, 2-4 min think
+========================================================================
+
+────────────────────────────────────────────────────────────────────────
+  t= 1.0m   VUs 252/2500   in-flight 252 (peak 252)   RPS 8.8   completed 0
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.0s / p95 0.0s   | full p50 0.0s / p95 0.0s / max 0.0s   (0 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :             0 total   burn 0/min  (0.0% of 330M TPM capacity)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 4%):
+     y-5-549d6575c7-8twtb  cpu   3.7%   mem   6.1%   (588m)
+     y-7-7fbdf7bd6f-hd9v8  cpu   3.6%   mem   6.1%   (575m)
+     y-2-86cbc8dfdc-2lcsh  cpu   3.5%   mem   6.1%   (553m)
+     -12-647f4f67c5-wkhv2  cpu   2.8%   mem   5.9%   (446m)
+     y-3-5978d4c6bf-fjnbh  cpu   2.4%   mem   6.0%   (380m)
+     -11-7c5c8558c7-tfpnh  cpu   2.2%   mem   5.9%   (360m)
+     y-8-78554fffbc-jzr97  cpu   1.9%   mem   5.9%   (309m)
+     -10-6658b49d67-2pvkn  cpu   1.8%   mem   5.7%   (281m)
+     y-6-844c846b79-nclb7  cpu   1.5%   mem   5.9%   (241m)
+     ey-4-c58d97b99-g89gd  cpu   0.8%   mem   5.9%   (128m)
+     y-1-5cd957b969-bqxjc  cpu   0.7%   mem   5.6%   (111m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (2m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.7%   (2m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.7%   (2m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.6%   (2m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 1%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 3% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 2% mem 6%  |  vmss00000d cpu 4% mem 6%  |  vmss00000e cpu 4% mem 6%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 1% mem 6%  |  vmss00000h cpu 2% mem 6%  |  vmss00000i cpu 5% mem 6%  |  vmss00000j cpu 2% mem 6%  |  vmss00000k cpu 1% mem 7%  |  vmss00000l cpu 3% mem 9%  |  vmss00000m cpu 4% mem 6%  |  vmss00000n cpu 5% mem 6%
+
+────────────────────────────────────────────────────────────────────────
+  t= 2.0m   VUs 504/2500   in-flight 458 (peak 461)   RPS 9.5   completed 46
+  p50 0s  p95 0s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 1.1s / p95 4.6s   | full p50 76.0s / p95 107.1s / max 111.6s   (46 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :     5,675,928 total   burn 5,675,928/min  (1.7% of 330M TPM capacity)
+  TURNS    : t1 126k(46)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 25%):
+     y-3-5978d4c6bf-fjnbh  cpu  25.4%   mem   7.4%   (4060m)
+     y-2-86cbc8dfdc-2lcsh  cpu  23.5%   mem   7.4%   (3768m)
+     y-8-78554fffbc-jzr97  cpu  21.8%   mem   7.0%   (3495m)
+     -12-647f4f67c5-wkhv2  cpu  21.5%   mem   6.9%   (3436m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  20.5%   mem   7.0%   (3288m)
+     y-5-549d6575c7-8twtb  cpu  20.4%   mem   7.2%   (3269m)
+     ey-4-c58d97b99-g89gd  cpu  18.8%   mem   7.1%   (3011m)
+     -10-6658b49d67-2pvkn  cpu  15.0%   mem   6.7%   (2393m)
+     y-6-844c846b79-nclb7  cpu  14.1%   mem   6.8%   (2255m)
+     y-1-5cd957b969-bqxjc  cpu  13.4%   mem   6.5%   (2136m)
+     -11-7c5c8558c7-tfpnh  cpu  10.0%   mem   6.6%   (1600m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (4m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.7%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.7%   (4m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.6%   (4m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 22% mem 6%  |  vmss00000d cpu 20% mem 7%  |  vmss00000e cpu 24% mem 7%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 26% mem 7%  |  vmss00000h cpu 10% mem 6%  |  vmss00000i cpu 25% mem 7%  |  vmss00000j cpu 16% mem 7%  |  vmss00000k cpu 14% mem 8%  |  vmss00000l cpu 18% mem 10%  |  vmss00000m cpu 30% mem 7%  |  vmss00000n cpu 23% mem 7%
+
+────────────────────────────────────────────────────────────────────────
+  t= 3.0m   VUs 756/2500   in-flight 621 (peak 621)   RPS 10.7   completed 135
+  p50 0s  p95 0s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 1.1s / p95 4.6s   | full p50 98.2s / p95 155.8s / max 168.5s   (135 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    19,250,693 total   burn 13,574,765/min  (4.1% of 330M TPM capacity)
+  TURNS    : t1 142k(135)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 61%):
+     y-5-549d6575c7-8twtb  cpu  60.9%   mem   8.7%   (9750m)
+     y-2-86cbc8dfdc-2lcsh  cpu  59.5%   mem   9.1%   (9525m)
+     ey-4-c58d97b99-g89gd  cpu  54.8%   mem   9.1%   (8768m)
+     y-1-5cd957b969-bqxjc  cpu  51.3%   mem   8.8%   (8206m)
+     y-8-78554fffbc-jzr97  cpu  51.2%   mem   8.4%   (8193m)
+     -10-6658b49d67-2pvkn  cpu  46.4%   mem   8.3%   (7418m)
+     y-3-5978d4c6bf-fjnbh  cpu  46.3%   mem   8.6%   (7406m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  45.2%   mem   8.3%   (7228m)
+     -12-647f4f67c5-wkhv2  cpu  40.2%   mem   8.2%   (6424m)
+     y-6-844c846b79-nclb7  cpu  33.7%   mem   8.5%   (5388m)
+     -11-7c5c8558c7-tfpnh  cpu  33.2%   mem   8.0%   (5307m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-f8z7x  cpu   0.3%   mem   3.7%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.7%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.6%   (5m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 53% mem 8%  |  vmss00000d cpu 60% mem 8%  |  vmss00000e cpu 43% mem 8%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 59% mem 8%  |  vmss00000h cpu 34% mem 7%  |  vmss00000i cpu 59% mem 8%  |  vmss00000j cpu 40% mem 8%  |  vmss00000k cpu 46% mem 9%  |  vmss00000l cpu 59% mem 12%  |  vmss00000m cpu 48% mem 8%  |  vmss00000n cpu 49% mem 7%
+
+────────────────────────────────────────────────────────────────────────
+  t= 4.0m   VUs 1008/2500   in-flight 767 (peak 767)   RPS 9.6   completed 241
+  p50 0s  p95 0s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.6s   | full p50 120.0s / p95 192.4s / max 234.5s   (241 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    36,873,277 total   burn 17,622,584/min  (5.3% of 330M TPM capacity)
+  TURNS    : t1 153k(241)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 82%):
+     y-5-549d6575c7-8twtb  cpu  82.5%   mem  11.6%   (13199m)
+     ey-4-c58d97b99-g89gd  cpu  79.8%   mem  10.1%   (12772m)
+     y-8-78554fffbc-jzr97  cpu  70.3%   mem  10.2%   (11248m)
+     y-2-86cbc8dfdc-2lcsh  cpu  66.5%   mem   9.9%   (10635m)
+     -10-6658b49d67-2pvkn  cpu  66.3%   mem   9.7%   (10603m)
+     y-3-5978d4c6bf-fjnbh  cpu  65.8%   mem  10.2%   (10528m)
+     y-1-5cd957b969-bqxjc  cpu  65.2%   mem  10.1%   (10434m)
+     -12-647f4f67c5-wkhv2  cpu  63.2%   mem   9.8%   (10109m)
+     -11-7c5c8558c7-tfpnh  cpu  56.6%   mem   9.9%   (9059m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  55.5%   mem   8.9%   (8883m)
+     y-6-844c846b79-nclb7  cpu  46.6%   mem   8.7%   (7448m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-f8z7x  cpu   0.3%   mem   3.7%   (6m)
+     ent-5674d5d9d9-ss4ms  cpu   0.3%   mem   3.6%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.7%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (5m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 72% mem 9%  |  vmss00000d cpu 85% mem 10%  |  vmss00000e cpu 66% mem 9%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 82% mem 9%  |  vmss00000h cpu 58% mem 9%  |  vmss00000i cpu 73% mem 9%  |  vmss00000j cpu 49% mem 8%  |  vmss00000k cpu 69% mem 10%  |  vmss00000l cpu 69% mem 13%  |  vmss00000m cpu 71% mem 9%  |  vmss00000n cpu 59% mem 8%
+
+────────────────────────────────────────────────────────────────────────
+  t= 5.0m   VUs 1260/2500   in-flight 909 (peak 910)   RPS 10.5   completed 351
+  p50 0s  p95 0s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.8s   | full p50 135.6s / p95 223.6s / max 281.1s   (351 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    53,724,052 total   burn 16,850,775/min  (5.1% of 330M TPM capacity)
+  TURNS    : t1 153k(351)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 89%):
+     ey-4-c58d97b99-g89gd  cpu  89.1%   mem  11.0%   (14252m)
+     y-5-549d6575c7-8twtb  cpu  88.7%   mem  12.4%   (14186m)
+     y-8-78554fffbc-jzr97  cpu  87.7%   mem  11.6%   (14039m)
+     -12-647f4f67c5-wkhv2  cpu  82.5%   mem  10.7%   (13195m)
+     y-2-86cbc8dfdc-2lcsh  cpu  82.2%   mem  11.3%   (13155m)
+     -10-6658b49d67-2pvkn  cpu  78.3%   mem  11.0%   (12525m)
+     y-1-5cd957b969-bqxjc  cpu  77.4%   mem  11.9%   (12384m)
+     y-3-5978d4c6bf-fjnbh  cpu  76.3%   mem  11.2%   (12201m)
+     -11-7c5c8558c7-tfpnh  cpu  75.9%   mem  10.9%   (12151m)
+     y-6-844c846b79-nclb7  cpu  70.7%   mem  10.3%   (11317m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  68.1%   mem  10.2%   (10893m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.7%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.6%   (5m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 10%  |  vmss00000d cpu 91% mem 11%  |  vmss00000e cpu 84% mem 9%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 92% mem 9%  |  vmss00000h cpu 77% mem 9%  |  vmss00000i cpu 86% mem 10%  |  vmss00000j cpu 75% mem 9%  |  vmss00000k cpu 81% mem 11%  |  vmss00000l cpu 84% mem 14%  |  vmss00000m cpu 78% mem 10%  |  vmss00000n cpu 70% mem 9%
+
+────────────────────────────────────────────────────────────────────────
+  t= 6.0m   VUs 1512/2500   in-flight 1061 (peak 1062)   RPS 9.4   completed 451
+  p50 0s  p95 0s  p99 3s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.6s   | full p50 146.5s / p95 256.1s / max 310.1s   (451 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    69,803,260 total   burn 16,079,208/min  (4.9% of 330M TPM capacity)
+  TURNS    : t1 155k(451)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     ey-4-c58d97b99-g89gd  cpu  88.0%   mem  11.8%   (14080m)
+     y-2-86cbc8dfdc-2lcsh  cpu  87.6%   mem  11.4%   (14022m)
+     y-8-78554fffbc-jzr97  cpu  87.5%   mem  12.4%   (14003m)
+     y-5-549d6575c7-8twtb  cpu  87.4%   mem  13.5%   (13985m)
+     -12-647f4f67c5-wkhv2  cpu  86.6%   mem  11.5%   (13857m)
+     -11-7c5c8558c7-tfpnh  cpu  85.1%   mem  12.1%   (13609m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.2%   mem  12.2%   (13474m)
+     y-1-5cd957b969-bqxjc  cpu  83.4%   mem  12.8%   (13348m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.2%   mem  10.9%   (13308m)
+     -10-6658b49d67-2pvkn  cpu  81.3%   mem  12.1%   (13007m)
+     y-6-844c846b79-nclb7  cpu  73.6%   mem  10.6%   (11768m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.3%   mem   4.1%   (6m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.7%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.7%   (5m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.6%   (4m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 10%  |  vmss00000d cpu 89% mem 11%  |  vmss00000e cpu 90% mem 10%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 90% mem 10%  |  vmss00000h cpu 86% mem 10%  |  vmss00000i cpu 90% mem 10%  |  vmss00000j cpu 76% mem 9%  |  vmss00000k cpu 83% mem 12%  |  vmss00000l cpu 87% mem 15%  |  vmss00000m cpu 85% mem 10%  |  vmss00000n cpu 85% mem 9%
+
+────────────────────────────────────────────────────────────────────────
+  t= 7.0m   VUs 1764/2500   in-flight 1244 (peak 1245)   RPS 9.7   completed 522
+  p50 0s  p95 0s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.6s   | full p50 158.3s / p95 295.1s / max 387.3s   (522 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    80,860,530 total   burn 11,057,270/min  (3.4% of 330M TPM capacity)
+  TURNS    : t1 155k(522)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     ey-4-c58d97b99-g89gd  cpu  88.3%   mem  12.8%   (14121m)
+     y-8-78554fffbc-jzr97  cpu  88.2%   mem  13.1%   (14110m)
+     y-2-86cbc8dfdc-2lcsh  cpu  88.1%   mem  12.2%   (14102m)
+     -11-7c5c8558c7-tfpnh  cpu  87.8%   mem  12.6%   (14044m)
+     -12-647f4f67c5-wkhv2  cpu  87.5%   mem  12.0%   (13994m)
+     -10-6658b49d67-2pvkn  cpu  86.6%   mem  13.0%   (13859m)
+     y-5-549d6575c7-8twtb  cpu  86.2%   mem  14.1%   (13795m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.4%   mem  11.9%   (13506m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.2%   mem  13.0%   (13464m)
+     y-1-5cd957b969-bqxjc  cpu  83.4%   mem  13.4%   (13348m)
+     y-6-844c846b79-nclb7  cpu  76.6%   mem  11.9%   (12255m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-gqlql  cpu   0.3%   mem   4.7%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.7%   (5m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 2%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 91% mem 11%  |  vmss00000d cpu 89% mem 12%  |  vmss00000e cpu 90% mem 10%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 90% mem 11%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 90% mem 10%  |  vmss00000j cpu 79% mem 10%  |  vmss00000k cpu 89% mem 12%  |  vmss00000l cpu 87% mem 15%  |  vmss00000m cpu 86% mem 11%  |  vmss00000n cpu 87% mem 10%
+
+────────────────────────────────────────────────────────────────────────
+  t= 8.1m   VUs 2016/2500   in-flight 1438 (peak 1438)   RPS 9.6   completed 589
+  p50 0s  p95 0s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.6s   | full p50 169.6s / p95 333.7s / max 446.4s   (589 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :    91,651,194 total   burn 10,790,664/min  (3.3% of 330M TPM capacity)
+  TURNS    : t1 155k(589)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -10-6658b49d67-2pvkn  cpu  87.0%   mem  13.4%   (13916m)
+     -11-7c5c8558c7-tfpnh  cpu  87.0%   mem  12.8%   (13924m)
+     y-8-78554fffbc-jzr97  cpu  86.9%   mem  13.3%   (13910m)
+     y-5-549d6575c7-8twtb  cpu  86.4%   mem  14.3%   (13828m)
+     ey-4-c58d97b99-g89gd  cpu  86.3%   mem  13.7%   (13815m)
+     -12-647f4f67c5-wkhv2  cpu  85.5%   mem  12.4%   (13672m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.4%   mem  12.5%   (13502m)
+     y-2-86cbc8dfdc-2lcsh  cpu  82.7%   mem  12.6%   (13230m)
+     y-6-844c846b79-nclb7  cpu  81.5%   mem  12.4%   (13038m)
+     y-3-5978d4c6bf-fjnbh  cpu  80.7%   mem  13.5%   (12915m)
+     y-1-5cd957b969-bqxjc  cpu  76.0%   mem  14.2%   (12161m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-f8z7x  cpu   0.3%   mem   3.8%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.8%   (5m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.8%   (5m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.7%   (4m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 3%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 89% mem 11%  |  vmss00000d cpu 89% mem 12%  |  vmss00000e cpu 88% mem 11%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 11%  |  vmss00000h cpu 89% mem 11%  |  vmss00000i cpu 86% mem 11%  |  vmss00000j cpu 84% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 78% mem 16%  |  vmss00000m cpu 83% mem 11%  |  vmss00000n cpu 87% mem 11%
+
+────────────────────────────────────────────────────────────────────────
+  t= 9.1m   VUs 2268/2500   in-flight 1666 (peak 1666)   RPS 9.3   completed 633
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.6s   | full p50 177.9s / p95 360.4s / max 446.4s   (633 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   100,254,082 total   burn 8,602,888/min  (2.6% of 330M TPM capacity)
+  TURNS    : t1 158k(633)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.2%   mem  13.6%   (13953m)
+     y-8-78554fffbc-jzr97  cpu  87.1%   mem  13.7%   (13943m)
+     -10-6658b49d67-2pvkn  cpu  86.9%   mem  13.7%   (13899m)
+     y-5-549d6575c7-8twtb  cpu  86.5%   mem  15.0%   (13838m)
+     ey-4-c58d97b99-g89gd  cpu  86.0%   mem  13.6%   (13765m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.8%   mem  13.2%   (13572m)
+     -12-647f4f67c5-wkhv2  cpu  84.2%   mem  13.1%   (13467m)
+     y-3-5978d4c6bf-fjnbh  cpu  83.1%   mem  14.0%   (13300m)
+     y-2-86cbc8dfdc-2lcsh  cpu  81.6%   mem  12.8%   (13050m)
+     y-6-844c846b79-nclb7  cpu  80.7%   mem  12.8%   (12907m)
+     y-1-5cd957b969-bqxjc  cpu  56.7%   mem  14.7%   (9074m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-n8bml  cpu   0.3%   mem   3.9%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (4m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.8%   (4m)
+     ent-5674d5d9d9-krdfd  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.7%   (4m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 3%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 12%  |  vmss00000d cpu 89% mem 12%  |  vmss00000e cpu 88% mem 11%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 88% mem 11%  |  vmss00000h cpu 89% mem 12%  |  vmss00000i cpu 85% mem 11%  |  vmss00000j cpu 83% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 61% mem 16%  |  vmss00000m cpu 85% mem 12%  |  vmss00000n cpu 87% mem 11%
+
+────────────────────────────────────────────────────────────────────────
+  t=10.1m   VUs 2500/2500   in-flight 1896 (peak 1896)   RPS 8.5   completed 663
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.5s   | full p50 182.8s / p95 386.5s / max 512.3s   (663 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   105,088,976 total   burn 4,834,894/min  (1.5% of 330M TPM capacity)
+  TURNS    : t1 158k(663)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.1%   mem  14.2%   (13942m)
+     ey-4-c58d97b99-g89gd  cpu  86.9%   mem  14.1%   (13908m)
+     y-5-549d6575c7-8twtb  cpu  86.5%   mem  15.1%   (13847m)
+     -10-6658b49d67-2pvkn  cpu  86.4%   mem  14.6%   (13830m)
+     y-6-844c846b79-nclb7  cpu  85.9%   mem  13.0%   (13742m)
+     y-8-78554fffbc-jzr97  cpu  85.7%   mem  14.1%   (13711m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.4%   mem  13.6%   (13508m)
+     -12-647f4f67c5-wkhv2  cpu  83.8%   mem  13.6%   (13407m)
+     y-3-5978d4c6bf-fjnbh  cpu  81.1%   mem  14.3%   (12969m)
+     y-2-86cbc8dfdc-2lcsh  cpu  74.2%   mem  13.7%   (11874m)
+     y-1-5cd957b969-bqxjc  cpu  58.9%   mem  14.7%   (9419m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-krdfd  cpu   0.4%   mem   3.8%   (7m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (4m)
+     ent-5674d5d9d9-f8z7x  cpu   0.2%   mem   3.8%   (4m)
+     ent-5674d5d9d9-gqlql  cpu   0.2%   mem   4.8%   (4m)
+     ent-5674d5d9d9-n8bml  cpu   0.2%   mem   3.9%   (4m)
+     ent-5674d5d9d9-ss4ms  cpu   0.2%   mem   3.7%   (4m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 3%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 12%  |  vmss00000d cpu 89% mem 12%  |  vmss00000e cpu 86% mem 11%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 12%  |  vmss00000h cpu 89% mem 12%  |  vmss00000i cpu 78% mem 11%  |  vmss00000j cpu 88% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 62% mem 17%  |  vmss00000m cpu 83% mem 12%  |  vmss00000n cpu 86% mem 11%
+
+────────────────────────────────────────────────────────────────────────
+  t=11.1m   VUs 2500/2500   in-flight 1888 (peak 1902)   RPS 1.0   completed 714   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.5s   | full p50 191.3s / p95 414.8s / max 614.8s   (714 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   112,253,669 total   burn 7,164,693/min  (2.2% of 330M TPM capacity)
+  TURNS    : t1 157k(713)  t2 22k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -10-6658b49d67-2pvkn  cpu  86.5%   mem  14.9%   (13840m)
+     -11-7c5c8558c7-tfpnh  cpu  86.5%   mem  14.6%   (13835m)
+     y-8-78554fffbc-jzr97  cpu  85.5%   mem  14.6%   (13677m)
+     y-5-549d6575c7-8twtb  cpu  85.0%   mem  15.3%   (13608m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.6%   mem  14.4%   (13372m)
+     y-3-5978d4c6bf-fjnbh  cpu  82.9%   mem  14.8%   (13261m)
+     ey-4-c58d97b99-g89gd  cpu  80.5%   mem  14.4%   (12883m)
+     y-6-844c846b79-nclb7  cpu  77.7%   mem  13.7%   (12429m)
+     -12-647f4f67c5-wkhv2  cpu  73.8%   mem  14.0%   (11804m)
+     y-2-86cbc8dfdc-2lcsh  cpu  69.1%   mem  14.1%   (11049m)
+     y-1-5cd957b969-bqxjc  cpu  50.8%   mem  14.9%   (8135m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-f8z7x  cpu   0.4%   mem   3.8%   (8m)
+     ent-5674d5d9d9-gqlql  cpu   0.4%   mem   4.8%   (7m)
+     ent-5674d5d9d9-n8bml  cpu   0.4%   mem   3.9%   (7m)
+     ent-5674d5d9d9-ss4ms  cpu   0.4%   mem   3.7%   (7m)
+     ent-5674d5d9d9-krdfd  cpu   0.3%   mem   3.8%   (6m)
+     ent-5674d5d9d9-bx7n5  cpu   0.2%   mem   4.1%   (5m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 3%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 76% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 83% mem 12%  |  vmss00000h cpu 89% mem 12%  |  vmss00000i cpu 70% mem 11%  |  vmss00000j cpu 81% mem 12%  |  vmss00000k cpu 88% mem 14%  |  vmss00000l cpu 55% mem 17%  |  vmss00000m cpu 86% mem 12%  |  vmss00000n cpu 86% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=12.1m   VUs 2500/2500   in-flight 1877 (peak 1902)   RPS 1.4   completed 778   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.5s   | full p50 200.2s / p95 467.8s / max 671.2s   (778 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   122,574,464 total   burn 10,320,795/min  (3.1% of 330M TPM capacity)
+  TURNS    : t1 157k(777)  t2 22k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -10-6658b49d67-2pvkn  cpu  86.0%   mem  15.2%   (13766m)
+     -11-7c5c8558c7-tfpnh  cpu  86.0%   mem  15.2%   (13767m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.8%   mem  14.3%   (13406m)
+     ey-4-c58d97b99-g89gd  cpu  83.0%   mem  14.8%   (13281m)
+     y-8-78554fffbc-jzr97  cpu  81.6%   mem  14.6%   (13053m)
+     y-5-549d6575c7-8twtb  cpu  81.2%   mem  15.3%   (12990m)
+     y-3-5978d4c6bf-fjnbh  cpu  79.8%   mem  14.9%   (12772m)
+     y-2-86cbc8dfdc-2lcsh  cpu  75.0%   mem  14.1%   (11998m)
+     -12-647f4f67c5-wkhv2  cpu  66.5%   mem  14.4%   (10641m)
+     y-6-844c846b79-nclb7  cpu  61.4%   mem  13.8%   (9825m)
+     y-1-5cd957b969-bqxjc  cpu  44.6%   mem  15.0%   (7142m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 4%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 3% mem 5%  |  vmss00000c cpu 84% mem 12%  |  vmss00000d cpu 84% mem 13%  |  vmss00000e cpu 69% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 85% mem 12%  |  vmss00000h cpu 87% mem 13%  |  vmss00000i cpu 78% mem 12%  |  vmss00000j cpu 65% mem 12%  |  vmss00000k cpu 88% mem 14%  |  vmss00000l cpu 49% mem 17%  |  vmss00000m cpu 83% mem 12%  |  vmss00000n cpu 84% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=13.1m   VUs 2500/2500   in-flight 1850 (peak 1902)   RPS 1.0   completed 851   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 2s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.4s   | full p50 213.8s / p95 519.1s / max 714.8s   (852 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   133,294,333 total   burn 10,719,869/min  (3.2% of 330M TPM capacity)
+  TURNS    : t1 157k(845)  t2 67k(6)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -10-6658b49d67-2pvkn  cpu  86.4%   mem  15.6%   (13817m)
+     -11-7c5c8558c7-tfpnh  cpu  85.9%   mem  15.3%   (13750m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  78.9%   mem  14.1%   (12624m)
+     ey-4-c58d97b99-g89gd  cpu  77.3%   mem  14.8%   (12365m)
+     y-5-549d6575c7-8twtb  cpu  77.3%   mem  15.3%   (12369m)
+     y-8-78554fffbc-jzr97  cpu  75.9%   mem  14.8%   (12151m)
+     y-3-5978d4c6bf-fjnbh  cpu  75.7%   mem  14.9%   (12119m)
+     -12-647f4f67c5-wkhv2  cpu  66.3%   mem  14.6%   (10604m)
+     y-2-86cbc8dfdc-2lcsh  cpu  62.5%   mem  14.6%   (9996m)
+     y-6-844c846b79-nclb7  cpu  60.3%   mem  13.8%   (9655m)
+     y-1-5cd957b969-bqxjc  cpu  56.2%   mem  15.1%   (8997m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 4%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 79% mem 12%  |  vmss00000d cpu 81% mem 13%  |  vmss00000e cpu 69% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 80% mem 12%  |  vmss00000h cpu 88% mem 13%  |  vmss00000i cpu 66% mem 12%  |  vmss00000j cpu 63% mem 12%  |  vmss00000k cpu 88% mem 14%  |  vmss00000l cpu 61% mem 17%  |  vmss00000m cpu 79% mem 12%  |  vmss00000n cpu 83% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=14.1m   VUs 2500/2500   in-flight 1844 (peak 1902)   RPS 1.7   completed 918   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.1s / p95 4.3s   | full p50 227.9s / p95 572.6s / max 770.4s   (919 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   143,506,076 total   burn 10,211,743/min  (3.1% of 330M TPM capacity)
+  TURNS    : t1 157k(908)  t2 80k(10)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -10-6658b49d67-2pvkn  cpu  86.5%   mem  15.2%   (13844m)
+     -11-7c5c8558c7-tfpnh  cpu  86.1%   mem  14.9%   (13768m)
+     y-5-549d6575c7-8twtb  cpu  82.4%   mem  15.8%   (13185m)
+     ey-4-c58d97b99-g89gd  cpu  76.7%   mem  15.0%   (12273m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  74.5%   mem  14.3%   (11912m)
+     y-8-78554fffbc-jzr97  cpu  69.1%   mem  15.5%   (11061m)
+     y-3-5978d4c6bf-fjnbh  cpu  67.2%   mem  15.0%   (10757m)
+     y-6-844c846b79-nclb7  cpu  64.4%   mem  13.6%   (10304m)
+     y-1-5cd957b969-bqxjc  cpu  58.5%   mem  15.1%   (9365m)
+     y-2-86cbc8dfdc-2lcsh  cpu  57.9%   mem  14.7%   (9267m)
+     -12-647f4f67c5-wkhv2  cpu  57.8%   mem  14.9%   (9244m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 4%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 72% mem 13%  |  vmss00000d cpu 85% mem 13%  |  vmss00000e cpu 59% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 79% mem 12%  |  vmss00000h cpu 88% mem 12%  |  vmss00000i cpu 60% mem 12%  |  vmss00000j cpu 68% mem 11%  |  vmss00000k cpu 88% mem 14%  |  vmss00000l cpu 62% mem 17%  |  vmss00000m cpu 70% mem 12%  |  vmss00000n cpu 76% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=15.1m   VUs 2500/2500   in-flight 1794 (peak 1902)   RPS 1.7   completed 1027   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 2s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.2s / p95 4.2s   | full p50 256.8s / p95 613.1s / max 827.9s   (1028 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   160,245,916 total   burn 16,739,840/min  (5.1% of 330M TPM capacity)
+  TURNS    : t1 157k(1015)  t2 80k(12)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -11-7c5c8558c7-tfpnh  cpu  86.1%   mem  14.2%   (13780m)
+     -10-6658b49d67-2pvkn  cpu  85.9%   mem  14.6%   (13743m)
+     y-5-549d6575c7-8twtb  cpu  78.6%   mem  15.9%   (12569m)
+     ey-4-c58d97b99-g89gd  cpu  77.4%   mem  14.9%   (12380m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  74.9%   mem  14.3%   (11987m)
+     y-8-78554fffbc-jzr97  cpu  67.4%   mem  15.6%   (10790m)
+     y-2-86cbc8dfdc-2lcsh  cpu  61.2%   mem  14.4%   (9785m)
+     y-6-844c846b79-nclb7  cpu  59.2%   mem  13.2%   (9480m)
+     y-1-5cd957b969-bqxjc  cpu  57.4%   mem  15.0%   (9184m)
+     y-3-5978d4c6bf-fjnbh  cpu  55.3%   mem  15.1%   (8847m)
+     -12-647f4f67c5-wkhv2  cpu  49.6%   mem  14.8%   (7935m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 4%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 71% mem 13%  |  vmss00000d cpu 81% mem 13%  |  vmss00000e cpu 53% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 80% mem 12%  |  vmss00000h cpu 88% mem 12%  |  vmss00000i cpu 65% mem 12%  |  vmss00000j cpu 64% mem 11%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 64% mem 17%  |  vmss00000m cpu 59% mem 12%  |  vmss00000n cpu 83% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=16.1m   VUs 2500/2500   in-flight 1774 (peak 1902)   RPS 1.5   completed 1120   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.2s / p95 4.1s   | full p50 281.4s / p95 658.2s / max 828.9s   (1121 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   174,370,897 total   burn 14,124,981/min  (4.3% of 330M TPM capacity)
+  TURNS    : t1 157k(1101)  t2 89k(19)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.3%   mem  13.8%   (13975m)
+     -10-6658b49d67-2pvkn  cpu  85.6%   mem  14.3%   (13693m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  80.4%   mem  14.3%   (12857m)
+     y-5-549d6575c7-8twtb  cpu  78.9%   mem  16.1%   (12628m)
+     ey-4-c58d97b99-g89gd  cpu  78.0%   mem  15.1%   (12474m)
+     y-8-78554fffbc-jzr97  cpu  76.4%   mem  15.7%   (12218m)
+     y-6-844c846b79-nclb7  cpu  68.5%   mem  13.1%   (10952m)
+     y-1-5cd957b969-bqxjc  cpu  67.7%   mem  15.1%   (10837m)
+     y-3-5978d4c6bf-fjnbh  cpu  64.1%   mem  15.2%   (10259m)
+     y-2-86cbc8dfdc-2lcsh  cpu  63.2%   mem  14.3%   (10109m)
+     -12-647f4f67c5-wkhv2  cpu  48.6%   mem  14.7%   (7779m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 5%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 79% mem 13%  |  vmss00000d cpu 80% mem 13%  |  vmss00000e cpu 52% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 82% mem 12%  |  vmss00000h cpu 90% mem 12%  |  vmss00000i cpu 67% mem 12%  |  vmss00000j cpu 71% mem 11%  |  vmss00000k cpu 88% mem 14%  |  vmss00000l cpu 74% mem 17%  |  vmss00000m cpu 68% mem 12%  |  vmss00000n cpu 83% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=17.1m   VUs 2500/2500   in-flight 1757 (peak 1902)   RPS 1.1   completed 1211   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.2s / p95 4.1s   | full p50 307.1s / p95 705.7s / max 931.2s   (1213 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   187,730,690 total   burn 13,359,793/min  (4.0% of 330M TPM capacity)
+  TURNS    : t1 156k(1181)  t2 79k(30)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  86.7%   mem  13.4%   (13874m)
+     -10-6658b49d67-2pvkn  cpu  86.3%   mem  14.3%   (13801m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  80.2%   mem  14.1%   (12826m)
+     ey-4-c58d97b99-g89gd  cpu  78.0%   mem  14.9%   (12480m)
+     y-8-78554fffbc-jzr97  cpu  76.6%   mem  15.6%   (12263m)
+     y-5-549d6575c7-8twtb  cpu  69.5%   mem  16.0%   (11116m)
+     y-3-5978d4c6bf-fjnbh  cpu  69.1%   mem  15.0%   (11058m)
+     y-6-844c846b79-nclb7  cpu  64.3%   mem  13.1%   (10288m)
+     y-1-5cd957b969-bqxjc  cpu  63.6%   mem  15.0%   (10175m)
+     y-2-86cbc8dfdc-2lcsh  cpu  57.4%   mem  14.5%   (9188m)
+     -12-647f4f67c5-wkhv2  cpu  56.2%   mem  14.8%   (8995m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 5%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 80% mem 13%  |  vmss00000d cpu 73% mem 13%  |  vmss00000e cpu 60% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 80% mem 12%  |  vmss00000h cpu 89% mem 11%  |  vmss00000i cpu 61% mem 12%  |  vmss00000j cpu 69% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 69% mem 17%  |  vmss00000m cpu 73% mem 12%  |  vmss00000n cpu 83% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=18.2m   VUs 2500/2500   in-flight 1781 (peak 1902)   RPS 0.8   completed 1270   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.3s / p95 4.1s   | full p50 318.4s / p95 740.8s / max 992.8s   (1274 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   196,070,607 total   burn 8,339,917/min  (2.5% of 330M TPM capacity)
+  TURNS    : t1 156k(1227)  t2 85k(43)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.2%   mem  13.3%   (13956m)
+     -10-6658b49d67-2pvkn  cpu  86.7%   mem  13.9%   (13867m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.3%   mem  14.3%   (13331m)
+     y-8-78554fffbc-jzr97  cpu  77.2%   mem  15.4%   (12358m)
+     y-5-549d6575c7-8twtb  cpu  76.1%   mem  16.3%   (12173m)
+     ey-4-c58d97b99-g89gd  cpu  74.1%   mem  14.8%   (11852m)
+     y-3-5978d4c6bf-fjnbh  cpu  72.5%   mem  14.9%   (11603m)
+     y-1-5cd957b969-bqxjc  cpu  65.3%   mem  15.2%   (10456m)
+     y-6-844c846b79-nclb7  cpu  63.1%   mem  12.9%   (10089m)
+     y-2-86cbc8dfdc-2lcsh  cpu  59.7%   mem  14.5%   (9548m)
+     -12-647f4f67c5-wkhv2  cpu  55.6%   mem  14.7%   (8903m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 6%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 81% mem 13%  |  vmss00000d cpu 80% mem 13%  |  vmss00000e cpu 59% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 78% mem 12%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 65% mem 12%  |  vmss00000j cpu 65% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 71% mem 17%  |  vmss00000m cpu 76% mem 12%  |  vmss00000n cpu 87% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=19.2m   VUs 2500/2500   in-flight 1764 (peak 1902)   RPS 1.4   completed 1356   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.3s / p95 4.0s   | full p50 336.2s / p95 789.9s / max 1068.3s   (1361 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   208,710,088 total   burn 12,639,481/min  (3.8% of 330M TPM capacity)
+  TURNS    : t1 157k(1290)  t2 94k(65)  t3 3k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     -11-7c5c8558c7-tfpnh  cpu  87.7%   mem  13.4%   (14028m)
+     -10-6658b49d67-2pvkn  cpu  86.8%   mem  14.0%   (13889m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  82.4%   mem  14.2%   (13181m)
+     y-8-78554fffbc-jzr97  cpu  80.6%   mem  15.2%   (12892m)
+     y-5-549d6575c7-8twtb  cpu  80.2%   mem  16.1%   (12827m)
+     ey-4-c58d97b99-g89gd  cpu  79.3%   mem  14.8%   (12681m)
+     y-1-5cd957b969-bqxjc  cpu  71.1%   mem  15.2%   (11370m)
+     y-3-5978d4c6bf-fjnbh  cpu  66.1%   mem  14.7%   (10584m)
+     y-2-86cbc8dfdc-2lcsh  cpu  62.9%   mem  14.5%   (10058m)
+     -12-647f4f67c5-wkhv2  cpu  54.6%   mem  14.7%   (8736m)
+     y-6-844c846b79-nclb7  cpu  53.4%   mem  13.1%   (8544m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 6%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 83% mem 12%  |  vmss00000d cpu 84% mem 13%  |  vmss00000e cpu 58% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 83% mem 12%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 66% mem 12%  |  vmss00000j cpu 56% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 74% mem 17%  |  vmss00000m cpu 70% mem 12%  |  vmss00000n cpu 85% mem 12%
+
+────────────────────────────────────────────────────────────────────────
+  t=20.2m   VUs 2500/2500   in-flight 1759 (peak 1902)   RPS 1.0   completed 1429   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.3s / p95 4.0s   | full p50 347.0s / p95 828.9s / max 1103.7s   (1437 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   218,710,344 total   burn 10,000,256/min  (3.0% of 330M TPM capacity)
+  TURNS    : t1 156k(1337)  t2 101k(91)  t3 3k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.0%   mem  13.4%   (13923m)
+     -10-6658b49d67-2pvkn  cpu  86.8%   mem  13.7%   (13891m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.4%   mem  14.0%   (13348m)
+     y-8-78554fffbc-jzr97  cpu  81.2%   mem  15.1%   (12991m)
+     ey-4-c58d97b99-g89gd  cpu  75.1%   mem  14.7%   (12020m)
+     y-5-549d6575c7-8twtb  cpu  73.0%   mem  16.1%   (11680m)
+     y-1-5cd957b969-bqxjc  cpu  72.6%   mem  15.2%   (11612m)
+     y-3-5978d4c6bf-fjnbh  cpu  68.7%   mem  14.8%   (10999m)
+     y-2-86cbc8dfdc-2lcsh  cpu  60.9%   mem  14.9%   (9739m)
+     y-6-844c846b79-nclb7  cpu  53.7%   mem  13.1%   (8595m)
+     -12-647f4f67c5-wkhv2  cpu  52.1%   mem  14.8%   (8342m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.8%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 7%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 85% mem 12%  |  vmss00000d cpu 75% mem 13%  |  vmss00000e cpu 57% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 78% mem 12%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 65% mem 12%  |  vmss00000j cpu 58% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 78% mem 17%  |  vmss00000m cpu 75% mem 12%  |  vmss00000n cpu 86% mem 11%
+
+────────────────────────────────────────────────────────────────────────
+  t=21.2m   VUs 2500/2500   in-flight 1745 (peak 1902)   RPS 1.0   completed 1510
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.3s / p95 3.8s   | full p50 362.5s / p95 878.7s / max 1181.3s   (1518 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   230,316,585 total   burn 11,606,241/min  (3.5% of 330M TPM capacity)
+  TURNS    : t1 156k(1402)  t2 102k(105)  t3 51k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     -11-7c5c8558c7-tfpnh  cpu  87.6%   mem  13.6%   (14019m)
+     -10-6658b49d67-2pvkn  cpu  87.2%   mem  13.8%   (13956m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.3%   mem  13.9%   (13333m)
+     y-8-78554fffbc-jzr97  cpu  82.7%   mem  15.0%   (13235m)
+     ey-4-c58d97b99-g89gd  cpu  80.0%   mem  14.8%   (12804m)
+     y-3-5978d4c6bf-fjnbh  cpu  74.1%   mem  14.7%   (11857m)
+     y-1-5cd957b969-bqxjc  cpu  70.7%   mem  15.0%   (11313m)
+     y-5-549d6575c7-8twtb  cpu  69.7%   mem  16.3%   (11152m)
+     y-2-86cbc8dfdc-2lcsh  cpu  63.0%   mem  15.0%   (10079m)
+     y-6-844c846b79-nclb7  cpu  55.1%   mem  13.1%   (8821m)
+     -12-647f4f67c5-wkhv2  cpu  54.8%   mem  14.8%   (8762m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 7%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 86% mem 12%  |  vmss00000d cpu 73% mem 13%  |  vmss00000e cpu 59% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 83% mem 12%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 67% mem 12%  |  vmss00000j cpu 59% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 76% mem 17%  |  vmss00000m cpu 77% mem 12%  |  vmss00000n cpu 87% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=22.2m   VUs 2500/2500   in-flight 1710 (peak 1902)   RPS 1.4   completed 1610
+  p50 0s  p95 2s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.3s / p95 3.8s   | full p50 376.3s / p95 929.7s / max 1187.4s   (1619 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   245,522,919 total   burn 15,206,334/min  (4.6% of 330M TPM capacity)
+  TURNS    : t1 157k(1472)  t2 102k(135)  t3 51k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.2%   mem  13.5%   (13950m)
+     -10-6658b49d67-2pvkn  cpu  86.9%   mem  13.7%   (13904m)
+     y-8-78554fffbc-jzr97  cpu  85.7%   mem  14.7%   (13719m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  82.3%   mem  13.8%   (13176m)
+     y-5-549d6575c7-8twtb  cpu  79.7%   mem  16.4%   (12755m)
+     y-3-5978d4c6bf-fjnbh  cpu  74.3%   mem  14.6%   (11888m)
+     y-1-5cd957b969-bqxjc  cpu  69.7%   mem  14.8%   (11150m)
+     ey-4-c58d97b99-g89gd  cpu  68.7%   mem  15.2%   (10997m)
+     y-2-86cbc8dfdc-2lcsh  cpu  53.7%   mem  15.0%   (8599m)
+     y-6-844c846b79-nclb7  cpu  53.7%   mem  13.2%   (8589m)
+     -12-647f4f67c5-wkhv2  cpu  52.4%   mem  14.8%   (8388m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 7%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 12%  |  vmss00000d cpu 83% mem 13%  |  vmss00000e cpu 57% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 71% mem 12%  |  vmss00000h cpu 89% mem 11%  |  vmss00000i cpu 57% mem 12%  |  vmss00000j cpu 56% mem 11%  |  vmss00000k cpu 89% mem 12%  |  vmss00000l cpu 75% mem 17%  |  vmss00000m cpu 78% mem 12%  |  vmss00000n cpu 85% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=23.2m   VUs 2500/2500   in-flight 1699 (peak 1902)   RPS 1.2   completed 1685
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 386.8s / p95 956.7s / max 1267.2s   (1696 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   257,042,389 total   burn 11,519,470/min  (3.5% of 330M TPM capacity)
+  TURNS    : t1 157k(1526)  t2 102k(156)  t3 51k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.0%   mem  13.8%   (13922m)
+     -10-6658b49d67-2pvkn  cpu  86.7%   mem  13.7%   (13878m)
+     y-8-78554fffbc-jzr97  cpu  86.1%   mem  15.0%   (13777m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.5%   mem  13.5%   (13512m)
+     y-5-549d6575c7-8twtb  cpu  83.9%   mem  16.4%   (13430m)
+     y-3-5978d4c6bf-fjnbh  cpu  75.3%   mem  14.7%   (12043m)
+     y-1-5cd957b969-bqxjc  cpu  72.0%   mem  14.7%   (11528m)
+     ey-4-c58d97b99-g89gd  cpu  63.7%   mem  15.2%   (10198m)
+     y-2-86cbc8dfdc-2lcsh  cpu  61.3%   mem  15.0%   (9803m)
+     -12-647f4f67c5-wkhv2  cpu  51.7%   mem  14.7%   (8278m)
+     y-6-844c846b79-nclb7  cpu  49.6%   mem  13.3%   (7930m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 8%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 89% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 56% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 68% mem 12%  |  vmss00000h cpu 90% mem 11%  |  vmss00000i cpu 68% mem 12%  |  vmss00000j cpu 53% mem 11%  |  vmss00000k cpu 89% mem 13%  |  vmss00000l cpu 77% mem 17%  |  vmss00000m cpu 79% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=24.2m   VUs 2500/2500   in-flight 1686 (peak 1902)   RPS 1.7   completed 1781
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 395.7s / p95 1021.9s / max 1424.4s   (1792 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   271,035,821 total   burn 13,993,432/min  (4.2% of 330M TPM capacity)
+  TURNS    : t1 158k(1592)  t2 104k(184)  t3 37k(5)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  87.0%   mem  13.9%   (13919m)
+     -10-6658b49d67-2pvkn  cpu  86.8%   mem  13.9%   (13883m)
+     y-5-549d6575c7-8twtb  cpu  85.1%   mem  16.4%   (13612m)
+     y-8-78554fffbc-jzr97  cpu  85.0%   mem  14.9%   (13593m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.4%   mem  13.4%   (13502m)
+     y-3-5978d4c6bf-fjnbh  cpu  75.4%   mem  14.7%   (12061m)
+     y-1-5cd957b969-bqxjc  cpu  68.3%   mem  14.8%   (10934m)
+     y-2-86cbc8dfdc-2lcsh  cpu  62.9%   mem  15.1%   (10066m)
+     ey-4-c58d97b99-g89gd  cpu  60.5%   mem  15.5%   (9677m)
+     -12-647f4f67c5-wkhv2  cpu  49.2%   mem  14.8%   (7879m)
+     y-6-844c846b79-nclb7  cpu  44.5%   mem  13.4%   (7114m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.1%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 8%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 53% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 63% mem 13%  |  vmss00000h cpu 89% mem 12%  |  vmss00000i cpu 67% mem 12%  |  vmss00000j cpu 49% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 74% mem 17%  |  vmss00000m cpu 80% mem 12%  |  vmss00000n cpu 87% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=25.3m   VUs 2500/2500   in-flight 1671 (peak 1902)   RPS 1.0   completed 1860
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 406.3s / p95 1067.1s / max 1468.6s   (1873 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   281,823,473 total   burn 10,787,652/min  (3.3% of 330M TPM capacity)
+  TURNS    : t1 157k(1640)  t2 105k(214)  t3 44k(6)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -11-7c5c8558c7-tfpnh  cpu  86.6%   mem  13.9%   (13857m)
+     -10-6658b49d67-2pvkn  cpu  86.4%   mem  14.1%   (13826m)
+     y-8-78554fffbc-jzr97  cpu  86.3%   mem  14.9%   (13811m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.6%   mem  13.7%   (13700m)
+     y-5-549d6575c7-8twtb  cpu  83.7%   mem  16.3%   (13398m)
+     y-3-5978d4c6bf-fjnbh  cpu  74.5%   mem  14.5%   (11925m)
+     y-1-5cd957b969-bqxjc  cpu  64.7%   mem  14.6%   (10355m)
+     y-2-86cbc8dfdc-2lcsh  cpu  62.0%   mem  15.3%   (9919m)
+     ey-4-c58d97b99-g89gd  cpu  61.4%   mem  15.7%   (9829m)
+     -12-647f4f67c5-wkhv2  cpu  53.0%   mem  14.7%   (8474m)
+     y-6-844c846b79-nclb7  cpu  51.8%   mem  13.5%   (8282m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 9%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 57% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 65% mem 13%  |  vmss00000h cpu 88% mem 12%  |  vmss00000i cpu 67% mem 13%  |  vmss00000j cpu 56% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 69% mem 16%  |  vmss00000m cpu 79% mem 12%  |  vmss00000n cpu 89% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=26.3m   VUs 2500/2500   in-flight 1662 (peak 1902)   RPS 0.7   completed 1942
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 415.0s / p95 1102.5s / max 1468.6s   (1959 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   292,188,575 total   burn 10,365,102/min  (3.1% of 330M TPM capacity)
+  TURNS    : t1 157k(1694)  t2 105k(240)  t3 50k(8)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -11-7c5c8558c7-tfpnh  cpu  86.1%   mem  14.1%   (13782m)
+     -10-6658b49d67-2pvkn  cpu  86.0%   mem  14.1%   (13764m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.0%   mem  13.9%   (13434m)
+     y-8-78554fffbc-jzr97  cpu  83.7%   mem  14.8%   (13398m)
+     y-5-549d6575c7-8twtb  cpu  83.2%   mem  16.2%   (13308m)
+     y-2-86cbc8dfdc-2lcsh  cpu  69.9%   mem  15.5%   (11179m)
+     ey-4-c58d97b99-g89gd  cpu  67.1%   mem  16.0%   (10735m)
+     y-3-5978d4c6bf-fjnbh  cpu  66.7%   mem  14.5%   (10667m)
+     y-1-5cd957b969-bqxjc  cpu  66.2%   mem  14.5%   (10586m)
+     y-6-844c846b79-nclb7  cpu  58.1%   mem  13.7%   (9302m)
+     -12-647f4f67c5-wkhv2  cpu  53.2%   mem  14.7%   (8520m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 9%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 12%  |  vmss00000d cpu 86% mem 13%  |  vmss00000e cpu 59% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 71% mem 13%  |  vmss00000h cpu 88% mem 12%  |  vmss00000i cpu 75% mem 13%  |  vmss00000j cpu 63% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 72% mem 16%  |  vmss00000m cpu 72% mem 12%  |  vmss00000n cpu 87% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=27.3m   VUs 2500/2500   in-flight 1687 (peak 1902)   RPS 1.2   completed 2001
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 420.6s / p95 1146.1s / max 1557.2s   (2020 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   301,397,335 total   burn 9,208,760/min  (2.8% of 330M TPM capacity)
+  TURNS    : t1 157k(1725)  t2 106k(267)  t3 47k(9)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     y-8-78554fffbc-jzr97  cpu  86.3%   mem  15.0%   (13815m)
+     -10-6658b49d67-2pvkn  cpu  86.2%   mem  14.3%   (13787m)
+     -11-7c5c8558c7-tfpnh  cpu  86.1%   mem  14.1%   (13778m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.2%   mem  13.9%   (13639m)
+     y-5-549d6575c7-8twtb  cpu  83.5%   mem  16.2%   (13363m)
+     y-3-5978d4c6bf-fjnbh  cpu  70.8%   mem  14.5%   (11323m)
+     ey-4-c58d97b99-g89gd  cpu  69.9%   mem  16.0%   (11178m)
+     y-2-86cbc8dfdc-2lcsh  cpu  65.2%   mem  15.6%   (10427m)
+     y-1-5cd957b969-bqxjc  cpu  63.8%   mem  14.8%   (10213m)
+     -12-647f4f67c5-wkhv2  cpu  55.7%   mem  14.8%   (8918m)
+     y-6-844c846b79-nclb7  cpu  55.7%   mem  13.8%   (8911m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 10%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 12%  |  vmss00000d cpu 87% mem 13%  |  vmss00000e cpu 63% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 75% mem 13%  |  vmss00000h cpu 87% mem 12%  |  vmss00000i cpu 70% mem 13%  |  vmss00000j cpu 60% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 69% mem 17%  |  vmss00000m cpu 76% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=28.3m   VUs 2500/2500   in-flight 1704 (peak 1902)   RPS 1.9   completed 2073
+  p50 0s  p95 0s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 435.4s / p95 1201.5s / max 1583.0s   (2097 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   311,806,516 total   burn 10,409,181/min  (3.2% of 330M TPM capacity)
+  TURNS    : t1 157k(1772)  t2 108k(291)  t3 43k(10)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     -10-6658b49d67-2pvkn  cpu  86.1%   mem  14.2%   (13770m)
+     -11-7c5c8558c7-tfpnh  cpu  85.4%   mem  14.4%   (13664m)
+     y-8-78554fffbc-jzr97  cpu  85.1%   mem  14.8%   (13617m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.0%   mem  14.0%   (13602m)
+     y-5-549d6575c7-8twtb  cpu  84.3%   mem  16.3%   (13487m)
+     y-2-86cbc8dfdc-2lcsh  cpu  69.0%   mem  15.7%   (11042m)
+     y-3-5978d4c6bf-fjnbh  cpu  67.9%   mem  14.6%   (10865m)
+     ey-4-c58d97b99-g89gd  cpu  67.4%   mem  16.0%   (10789m)
+     y-1-5cd957b969-bqxjc  cpu  55.7%   mem  15.4%   (8916m)
+     -12-647f4f67c5-wkhv2  cpu  50.8%   mem  14.8%   (8133m)
+     y-6-844c846b79-nclb7  cpu  46.2%   mem  13.8%   (7398m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 10%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 89% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 55% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 71% mem 13%  |  vmss00000h cpu 87% mem 12%  |  vmss00000i cpu 71% mem 13%  |  vmss00000j cpu 51% mem 11%  |  vmss00000k cpu 88% mem 13%  |  vmss00000l cpu 61% mem 17%  |  vmss00000m cpu 73% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=29.3m   VUs 2500/2500   in-flight 1736 (peak 1902)   RPS 0.5   completed 2122
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 440.4s / p95 1229.3s / max 1743.3s   (2149 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   319,413,746 total   burn 7,607,230/min  (2.3% of 330M TPM capacity)
+  TURNS    : t1 158k(1796)  t2 108k(314)  t3 40k(12)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-8-78554fffbc-jzr97  cpu  87.3%   mem  14.8%   (13963m)
+     -10-6658b49d67-2pvkn  cpu  85.5%   mem  14.4%   (13681m)
+     -11-7c5c8558c7-tfpnh  cpu  85.0%   mem  14.8%   (13594m)
+     y-5-549d6575c7-8twtb  cpu  85.0%   mem  16.3%   (13599m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.0%   mem  13.8%   (13596m)
+     y-3-5978d4c6bf-fjnbh  cpu  73.8%   mem  14.6%   (11803m)
+     y-1-5cd957b969-bqxjc  cpu  62.8%   mem  15.7%   (10052m)
+     y-2-86cbc8dfdc-2lcsh  cpu  62.3%   mem  15.6%   (9966m)
+     ey-4-c58d97b99-g89gd  cpu  61.2%   mem  16.1%   (9793m)
+     y-6-844c846b79-nclb7  cpu  59.0%   mem  14.0%   (9438m)
+     -12-647f4f67c5-wkhv2  cpu  56.8%   mem  14.8%   (9095m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 11%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 62% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 67% mem 13%  |  vmss00000h cpu 87% mem 12%  |  vmss00000i cpu 67% mem 13%  |  vmss00000j cpu 64% mem 11%  |  vmss00000k cpu 87% mem 13%  |  vmss00000l cpu 69% mem 17%  |  vmss00000m cpu 78% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=30.3m   VUs 2500/2500   in-flight 1789 (peak 1902)   RPS 0.8   completed 2177   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 447.3s / p95 1272.3s / max 1743.3s   (2208 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   325,487,976 total   burn 6,074,230/min  (1.8% of 330M TPM capacity)
+  TURNS    : t1 158k(1830)  t2 107k(331)  t3 36k(14)  t4 3k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-8-78554fffbc-jzr97  cpu  87.4%   mem  15.1%   (13983m)
+     -10-6658b49d67-2pvkn  cpu  85.3%   mem  14.5%   (13649m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.9%   mem  13.7%   (13578m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  15.2%   (13549m)
+     y-5-549d6575c7-8twtb  cpu  84.1%   mem  16.2%   (13463m)
+     y-3-5978d4c6bf-fjnbh  cpu  72.6%   mem  14.9%   (11615m)
+     y-2-86cbc8dfdc-2lcsh  cpu  64.5%   mem  15.6%   (10326m)
+     ey-4-c58d97b99-g89gd  cpu  63.5%   mem  16.6%   (10168m)
+     y-6-844c846b79-nclb7  cpu  61.9%   mem  14.1%   (9897m)
+     y-1-5cd957b969-bqxjc  cpu  59.6%   mem  15.5%   (9539m)
+     -12-647f4f67c5-wkhv2  cpu  57.2%   mem  15.0%   (9146m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 11%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 91% mem 12%  |  vmss00000d cpu 88% mem 13%  |  vmss00000e cpu 62% mem 12%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 69% mem 13%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 70% mem 13%  |  vmss00000j cpu 67% mem 12%  |  vmss00000k cpu 87% mem 13%  |  vmss00000l cpu 66% mem 17%  |  vmss00000m cpu 78% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=31.4m   VUs 2500/2500   in-flight 1793 (peak 1902)   RPS 0.9   completed 2241   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 453.9s / p95 1305.0s / max 1791.5s   (2275 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   344,412,613 total   burn 18,924,637/min  (5.7% of 330M TPM capacity)
+  TURNS    : t1 164k(1862)  t2 107k(356)  t3 41k(21)  t4 3k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-8-78554fffbc-jzr97  cpu  88.4%   mem  15.1%   (14150m)
+     -10-6658b49d67-2pvkn  cpu  85.4%   mem  14.7%   (13669m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.1%   mem  13.8%   (13615m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  15.5%   (13560m)
+     y-5-549d6575c7-8twtb  cpu  83.0%   mem  16.6%   (13279m)
+     ey-4-c58d97b99-g89gd  cpu  72.5%   mem  16.9%   (11603m)
+     y-3-5978d4c6bf-fjnbh  cpu  71.7%   mem  15.0%   (11475m)
+     y-1-5cd957b969-bqxjc  cpu  69.3%   mem  16.6%   (11092m)
+     y-2-86cbc8dfdc-2lcsh  cpu  65.8%   mem  15.7%   (10522m)
+     y-6-844c846b79-nclb7  cpu  60.6%   mem  14.2%   (9695m)
+     -12-647f4f67c5-wkhv2  cpu  55.8%   mem  15.1%   (8931m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 12%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 92% mem 12%  |  vmss00000d cpu 87% mem 13%  |  vmss00000e cpu 61% mem 12%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 77% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 71% mem 13%  |  vmss00000j cpu 66% mem 12%  |  vmss00000k cpu 87% mem 13%  |  vmss00000l cpu 76% mem 18%  |  vmss00000m cpu 77% mem 12%  |  vmss00000n cpu 88% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=32.4m   VUs 2500/2500   in-flight 1802 (peak 1902)   RPS 1.6   completed 2313   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 463.0s / p95 1354.0s / max 1791.5s   (2352 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   353,537,981 total   burn 9,125,368/min  (2.8% of 330M TPM capacity)
+  TURNS    : t1 163k(1909)  t2 107k(377)  t3 41k(25)  t4 3k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-8-78554fffbc-jzr97  cpu  87.2%   mem  15.0%   (13952m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  86.2%   mem  13.9%   (13786m)
+     -10-6658b49d67-2pvkn  cpu  84.9%   mem  15.0%   (13588m)
+     y-5-549d6575c7-8twtb  cpu  84.8%   mem  16.6%   (13563m)
+     -11-7c5c8558c7-tfpnh  cpu  84.3%   mem  15.7%   (13492m)
+     ey-4-c58d97b99-g89gd  cpu  73.7%   mem  17.0%   (11791m)
+     y-1-5cd957b969-bqxjc  cpu  73.6%   mem  16.3%   (11780m)
+     y-3-5978d4c6bf-fjnbh  cpu  70.7%   mem  15.0%   (11304m)
+     y-2-86cbc8dfdc-2lcsh  cpu  66.9%   mem  15.9%   (10703m)
+     y-6-844c846b79-nclb7  cpu  62.2%   mem  14.2%   (9957m)
+     -12-647f4f67c5-wkhv2  cpu  60.6%   mem  15.5%   (9693m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 13%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 91% mem 12%  |  vmss00000d cpu 89% mem 13%  |  vmss00000e cpu 67% mem 13%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 78% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 73% mem 13%  |  vmss00000j cpu 66% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 80% mem 18%  |  vmss00000m cpu 76% mem 12%  |  vmss00000n cpu 90% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=33.4m   VUs 2500/2500   in-flight 1830 (peak 1902)   RPS 1.3   completed 2369   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 467.6s / p95 1388.2s / max 1951.7s   (2415 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   363,015,253 total   burn 9,477,272/min  (2.9% of 330M TPM capacity)
+  TURNS    : t1 164k(1935)  t2 107k(399)  t3 42k(32)  t4 3k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-8-78554fffbc-jzr97  cpu  88.1%   mem  15.3%   (14103m)
+     y-5-549d6575c7-8twtb  cpu  86.4%   mem  16.5%   (13825m)
+     -10-6658b49d67-2pvkn  cpu  85.2%   mem  15.1%   (13631m)
+     -11-7c5c8558c7-tfpnh  cpu  84.5%   mem  15.8%   (13521m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  83.5%   mem  14.2%   (13364m)
+     y-1-5cd957b969-bqxjc  cpu  74.9%   mem  16.5%   (11990m)
+     y-2-86cbc8dfdc-2lcsh  cpu  72.1%   mem  16.1%   (11543m)
+     y-3-5978d4c6bf-fjnbh  cpu  72.0%   mem  15.2%   (11513m)
+     ey-4-c58d97b99-g89gd  cpu  68.4%   mem  17.1%   (10950m)
+     -12-647f4f67c5-wkhv2  cpu  65.8%   mem  15.7%   (10530m)
+     y-6-844c846b79-nclb7  cpu  54.5%   mem  14.3%   (8718m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 13%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 91% mem 12%  |  vmss00000d cpu 90% mem 13%  |  vmss00000e cpu 71% mem 13%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 71% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 77% mem 13%  |  vmss00000j cpu 59% mem 12%  |  vmss00000k cpu 86% mem 14%  |  vmss00000l cpu 80% mem 18%  |  vmss00000m cpu 78% mem 12%  |  vmss00000n cpu 87% mem 11%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=34.4m   VUs 2500/2500   in-flight 1830 (peak 1902)   RPS 0.9   completed 2432   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 474.0s / p95 1432.5s / max 1951.7s   (2482 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   370,956,504 total   burn 7,941,251/min  (2.4% of 330M TPM capacity)
+  TURNS    : t1 164k(1961)  t2 107k(430)  t3 47k(38)  t4 3k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-8-78554fffbc-jzr97  cpu  88.0%   mem  15.2%   (14087m)
+     -10-6658b49d67-2pvkn  cpu  85.3%   mem  15.0%   (13646m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.6%   mem  14.6%   (13533m)
+     -11-7c5c8558c7-tfpnh  cpu  84.4%   mem  16.1%   (13510m)
+     y-5-549d6575c7-8twtb  cpu  83.3%   mem  17.1%   (13335m)
+     y-1-5cd957b969-bqxjc  cpu  77.1%   mem  16.5%   (12331m)
+     y-3-5978d4c6bf-fjnbh  cpu  74.3%   mem  15.3%   (11881m)
+     y-2-86cbc8dfdc-2lcsh  cpu  72.0%   mem  16.2%   (11521m)
+     -12-647f4f67c5-wkhv2  cpu  69.1%   mem  15.7%   (11060m)
+     ey-4-c58d97b99-g89gd  cpu  69.1%   mem  17.3%   (11054m)
+     y-6-844c846b79-nclb7  cpu  53.4%   mem  14.3%   (8543m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 14%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 91% mem 12%  |  vmss00000d cpu 87% mem 14%  |  vmss00000e cpu 76% mem 13%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 74% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 77% mem 13%  |  vmss00000j cpu 59% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 83% mem 18%  |  vmss00000m cpu 79% mem 12%  |  vmss00000n cpu 88% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=35.4m   VUs 2500/2500   in-flight 1846 (peak 1902)   RPS 1.1   completed 2476   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.6s   | full p50 480.0s / p95 1452.9s / max 1975.5s   (2533 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   376,128,165 total   burn 5,171,661/min  (1.6% of 330M TPM capacity)
+  TURNS    : t1 164k(1979)  t2 107k(450)  t3 54k(43)  t4 3k(4)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     y-8-78554fffbc-jzr97  cpu  86.4%   mem  15.5%   (13824m)
+     y-5-549d6575c7-8twtb  cpu  85.9%   mem  17.1%   (13740m)
+     -10-6658b49d67-2pvkn  cpu  85.2%   mem  15.3%   (13629m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.2%   mem  14.6%   (13624m)
+     -11-7c5c8558c7-tfpnh  cpu  84.5%   mem  16.4%   (13522m)
+     y-1-5cd957b969-bqxjc  cpu  80.8%   mem  16.8%   (12928m)
+     ey-4-c58d97b99-g89gd  cpu  77.1%   mem  17.3%   (12337m)
+     y-3-5978d4c6bf-fjnbh  cpu  76.2%   mem  15.3%   (12197m)
+     y-2-86cbc8dfdc-2lcsh  cpu  74.9%   mem  16.1%   (11990m)
+     -12-647f4f67c5-wkhv2  cpu  67.4%   mem  16.1%   (10784m)
+     y-6-844c846b79-nclb7  cpu  56.7%   mem  14.4%   (9076m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 14%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 6%  |  vmss00000c cpu 90% mem 12%  |  vmss00000d cpu 90% mem 14%  |  vmss00000e cpu 72% mem 13%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 81% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 80% mem 13%  |  vmss00000j cpu 63% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 86% mem 18%  |  vmss00000m cpu 81% mem 12%  |  vmss00000n cpu 89% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=36.5m   VUs 2500/2500   in-flight 1862 (peak 1902)   RPS 0.8   completed 2529   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 489.1s / p95 1496.5s / max 1992.7s   (2596 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   397,370,386 total   burn 21,242,221/min  (6.4% of 330M TPM capacity)
+  TURNS    : t1 171k(2004)  t2 109k(468)  t3 58k(53)  t4 3k(4)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-8-78554fffbc-jzr97  cpu  87.0%   mem  15.9%   (13914m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.6%   mem  14.9%   (13691m)
+     -10-6658b49d67-2pvkn  cpu  85.3%   mem  15.2%   (13654m)
+     y-5-549d6575c7-8twtb  cpu  85.1%   mem  17.3%   (13611m)
+     -11-7c5c8558c7-tfpnh  cpu  84.9%   mem  16.2%   (13576m)
+     y-1-5cd957b969-bqxjc  cpu  80.4%   mem  16.9%   (12864m)
+     y-3-5978d4c6bf-fjnbh  cpu  77.5%   mem  15.3%   (12395m)
+     ey-4-c58d97b99-g89gd  cpu  76.4%   mem  17.3%   (12220m)
+     y-2-86cbc8dfdc-2lcsh  cpu  71.7%   mem  16.1%   (11473m)
+     -12-647f4f67c5-wkhv2  cpu  70.0%   mem  16.1%   (11206m)
+     y-6-844c846b79-nclb7  cpu  60.4%   mem  14.7%   (9664m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 15%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 13%  |  vmss00000d cpu 90% mem 14%  |  vmss00000e cpu 75% mem 13%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 80% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 76% mem 13%  |  vmss00000j cpu 66% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 86% mem 18%  |  vmss00000m cpu 82% mem 12%  |  vmss00000n cpu 89% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=37.5m   VUs 2500/2500   in-flight 1882 (peak 1902)   RPS 1.2   completed 2573   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 499.0s / p95 1533.7s / max 2098.0s   (2642 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   402,651,296 total   burn 5,280,910/min  (1.6% of 330M TPM capacity)
+  TURNS    : t1 170k(2019)  t2 109k(489)  t3 62k(60)  t4 3k(5)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     y-7-7fbdf7bd6f-hd9v8  cpu  86.2%   mem  14.8%   (13795m)
+     y-8-78554fffbc-jzr97  cpu  85.7%   mem  16.0%   (13709m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  15.4%   (13615m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  16.2%   (13564m)
+     y-5-549d6575c7-8twtb  cpu  82.4%   mem  17.7%   (13186m)
+     y-1-5cd957b969-bqxjc  cpu  78.8%   mem  17.1%   (12615m)
+     y-3-5978d4c6bf-fjnbh  cpu  74.1%   mem  15.8%   (11855m)
+     ey-4-c58d97b99-g89gd  cpu  71.6%   mem  17.2%   (11450m)
+     y-2-86cbc8dfdc-2lcsh  cpu  70.9%   mem  16.8%   (11344m)
+     -12-647f4f67c5-wkhv2  cpu  68.6%   mem  16.5%   (10979m)
+     y-6-844c846b79-nclb7  cpu  58.0%   mem  14.7%   (9287m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 15%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 90% mem 13%  |  vmss00000d cpu 85% mem 14%  |  vmss00000e cpu 74% mem 13%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 76% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 76% mem 13%  |  vmss00000j cpu 63% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 84% mem 18%  |  vmss00000m cpu 78% mem 13%  |  vmss00000n cpu 90% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=38.5m   VUs 2500/2500   in-flight 1889 (peak 1902)   RPS 0.8   completed 2616   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 508.5s / p95 1572.5s / max 2098.0s   (2697 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   409,873,683 total   burn 7,222,387/min  (2.2% of 330M TPM capacity)
+  TURNS    : t1 172k(2038)  t2 110k(506)  t3 67k(67)  t4 3k(5)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-8-78554fffbc-jzr97  cpu  88.1%   mem  16.2%   (14097m)
+     -10-6658b49d67-2pvkn  cpu  85.4%   mem  15.4%   (13657m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  16.3%   (13557m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.3%   mem  15.0%   (13483m)
+     y-5-549d6575c7-8twtb  cpu  83.3%   mem  18.1%   (13325m)
+     y-1-5cd957b969-bqxjc  cpu  82.4%   mem  17.3%   (13181m)
+     ey-4-c58d97b99-g89gd  cpu  74.1%   mem  17.2%   (11861m)
+     y-3-5978d4c6bf-fjnbh  cpu  73.5%   mem  15.9%   (11764m)
+     y-2-86cbc8dfdc-2lcsh  cpu  70.8%   mem  16.9%   (11331m)
+     -12-647f4f67c5-wkhv2  cpu  70.4%   mem  16.5%   (11258m)
+     y-6-844c846b79-nclb7  cpu  60.8%   mem  14.8%   (9734m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 16%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 91% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 75% mem 13%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 78% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 76% mem 13%  |  vmss00000j cpu 67% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 88% mem 18%  |  vmss00000m cpu 78% mem 13%  |  vmss00000n cpu 87% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=39.5m   VUs 2500/2500   in-flight 1896 (peak 1902)   RPS 1.2   completed 2673   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 521.9s / p95 1598.0s / max 2123.3s   (2761 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   418,248,657 total   burn 8,374,974/min  (2.5% of 330M TPM capacity)
+  TURNS    : t1 172k(2061)  t2 110k(525)  t3 70k(81)  t4 3k(5)  t5 3k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-5-549d6575c7-8twtb  cpu  87.5%   mem  18.0%   (14001m)
+     y-8-78554fffbc-jzr97  cpu  87.5%   mem  16.3%   (13999m)
+     -10-6658b49d67-2pvkn  cpu  85.3%   mem  15.2%   (13652m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.2%   mem  15.4%   (13634m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  16.4%   (13558m)
+     y-1-5cd957b969-bqxjc  cpu  83.0%   mem  17.0%   (13272m)
+     y-3-5978d4c6bf-fjnbh  cpu  80.4%   mem  15.8%   (12859m)
+     ey-4-c58d97b99-g89gd  cpu  77.6%   mem  17.3%   (12421m)
+     y-2-86cbc8dfdc-2lcsh  cpu  77.1%   mem  17.5%   (12330m)
+     -12-647f4f67c5-wkhv2  cpu  72.9%   mem  16.8%   (11671m)
+     y-6-844c846b79-nclb7  cpu  60.9%   mem  14.8%   (9751m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 16%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 90% mem 13%  |  vmss00000d cpu 91% mem 14%  |  vmss00000e cpu 78% mem 13%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 81% mem 14%  |  vmss00000h cpu 86% mem 13%  |  vmss00000i cpu 82% mem 14%  |  vmss00000j cpu 67% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 86% mem 19%  |  vmss00000m cpu 85% mem 13%  |  vmss00000n cpu 88% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=40.6m   VUs 2500/2500   in-flight 1907 (peak 1910)   RPS 0.8   completed 2739   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 536.3s / p95 1652.1s / max 2342.5s   (2834 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   456,409,647 total   burn 38,160,990/min  (11.6% of 330M TPM capacity)
+  TURNS    : t1 186k(2085)  t2 111k(555)  t3 73k(93)  t4 3k(5)  t5 3k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     y-5-549d6575c7-8twtb  cpu  87.6%   mem  18.1%   (14012m)
+     y-8-78554fffbc-jzr97  cpu  87.0%   mem  16.6%   (13913m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.8%   mem  15.5%   (13734m)
+     -10-6658b49d67-2pvkn  cpu  85.2%   mem  15.4%   (13631m)
+     -11-7c5c8558c7-tfpnh  cpu  84.9%   mem  16.6%   (13580m)
+     y-1-5cd957b969-bqxjc  cpu  83.6%   mem  17.3%   (13378m)
+     y-3-5978d4c6bf-fjnbh  cpu  81.6%   mem  15.8%   (13055m)
+     ey-4-c58d97b99-g89gd  cpu  81.2%   mem  17.3%   (12996m)
+     -12-647f4f67c5-wkhv2  cpu  78.5%   mem  17.0%   (12553m)
+     y-2-86cbc8dfdc-2lcsh  cpu  77.1%   mem  17.9%   (12340m)
+     y-6-844c846b79-nclb7  cpu  71.9%   mem  15.1%   (11504m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 17%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 13%  |  vmss00000d cpu 91% mem 14%  |  vmss00000e cpu 83% mem 14%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 85% mem 14%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 80% mem 14%  |  vmss00000j cpu 76% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 86% mem 13%  |  vmss00000n cpu 89% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=41.6m   VUs 2500/2500   in-flight 1905 (peak 1910)   RPS 0.7   completed 2801   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.7s   | full p50 549.0s / p95 1712.2s / max 2404.3s   (2902 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   466,358,650 total   burn 9,949,003/min  (3.0% of 330M TPM capacity)
+  TURNS    : t1 186k(2107)  t2 111k(582)  t3 76k(103)  t4 18k(7)  t5 4k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-5-549d6575c7-8twtb  cpu  87.2%   mem  18.0%   (13947m)
+     y-8-78554fffbc-jzr97  cpu  86.1%   mem  16.7%   (13768m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.8%   mem  15.6%   (13733m)
+     -10-6658b49d67-2pvkn  cpu  85.4%   mem  15.4%   (13657m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  16.7%   (13562m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.8%   mem  16.0%   (13564m)
+     y-1-5cd957b969-bqxjc  cpu  83.9%   mem  17.2%   (13421m)
+     ey-4-c58d97b99-g89gd  cpu  81.8%   mem  17.7%   (13091m)
+     y-6-844c846b79-nclb7  cpu  79.8%   mem  15.1%   (12762m)
+     -12-647f4f67c5-wkhv2  cpu  78.7%   mem  17.4%   (12593m)
+     y-2-86cbc8dfdc-2lcsh  cpu  77.1%   mem  18.0%   (12339m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 18%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 6%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 83% mem 14%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 85% mem 14%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 82% mem 14%  |  vmss00000j cpu 84% mem 12%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 88% mem 13%  |  vmss00000n cpu 88% mem 12%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=42.6m   VUs 2500/2500   in-flight 1893 (peak 1910)   RPS 0.9   completed 2864   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 566.2s / p95 1762.7s / max 2404.3s   (2969 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   475,378,372 total   burn 9,019,722/min  (2.7% of 330M TPM capacity)
+  TURNS    : t1 186k(2133)  t2 112k(605)  t3 78k(116)  t4 25k(8)  t5 4k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-5-549d6575c7-8twtb  cpu  86.6%   mem  18.1%   (13863m)
+     y-8-78554fffbc-jzr97  cpu  85.3%   mem  16.9%   (13641m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  15.5%   (13621m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.0%   mem  15.7%   (13608m)
+     y-1-5cd957b969-bqxjc  cpu  84.9%   mem  17.3%   (13580m)
+     -11-7c5c8558c7-tfpnh  cpu  84.9%   mem  16.7%   (13585m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.9%   mem  16.0%   (13583m)
+     ey-4-c58d97b99-g89gd  cpu  83.2%   mem  17.9%   (13312m)
+     -12-647f4f67c5-wkhv2  cpu  82.5%   mem  18.0%   (13195m)
+     y-2-86cbc8dfdc-2lcsh  cpu  81.4%   mem  18.1%   (13023m)
+     y-6-844c846b79-nclb7  cpu  79.1%   mem  15.7%   (12663m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 18%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 6% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 87% mem 14%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 87% mem 14%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 85% mem 14%  |  vmss00000j cpu 83% mem 13%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 88% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=43.6m   VUs 2500/2500   in-flight 1893 (peak 1910)   RPS 1.1   completed 2932   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 577.5s / p95 1817.8s / max 2555.6s   (3039 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   484,611,124 total   burn 9,232,752/min  (2.8% of 330M TPM capacity)
+  TURNS    : t1 187k(2153)  t2 111k(640)  t3 79k(128)  t4 22k(9)  t5 4k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 88%):
+     -12-647f4f67c5-wkhv2  cpu  87.7%   mem  18.3%   (14037m)
+     y-5-549d6575c7-8twtb  cpu  86.9%   mem  18.2%   (13902m)
+     y-8-78554fffbc-jzr97  cpu  85.8%   mem  16.9%   (13723m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  15.8%   (13613m)
+     -11-7c5c8558c7-tfpnh  cpu  85.0%   mem  17.0%   (13595m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.8%   mem  16.1%   (13560m)
+     ey-4-c58d97b99-g89gd  cpu  84.8%   mem  18.2%   (13568m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.7%   mem  16.0%   (13550m)
+     y-1-5cd957b969-bqxjc  cpu  84.6%   mem  17.2%   (13543m)
+     y-6-844c846b79-nclb7  cpu  83.5%   mem  15.9%   (13365m)
+     y-2-86cbc8dfdc-2lcsh  cpu  82.3%   mem  18.2%   (13165m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 1% mem 19%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 91% mem 15%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 88% mem 14%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 85% mem 15%  |  vmss00000j cpu 86% mem 13%  |  vmss00000k cpu 86% mem 14%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 86% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=44.7m   VUs 2500/2500   in-flight 1852 (peak 1910)   RPS 1.7   completed 3031   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 595.1s / p95 1874.7s / max 2572.3s   (3141 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   500,009,388 total   burn 15,398,264/min  (4.7% of 330M TPM capacity)
+  TURNS    : t1 188k(2179)  t2 112k(687)  t3 79k(151)  t4 19k(11)  t5 4k(2)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-5-549d6575c7-8twtb  cpu  86.7%   mem  18.2%   (13869m)
+     -12-647f4f67c5-wkhv2  cpu  86.3%   mem  18.0%   (13806m)
+     ey-4-c58d97b99-g89gd  cpu  86.0%   mem  19.1%   (13764m)
+     y-6-844c846b79-nclb7  cpu  86.0%   mem  15.9%   (13757m)
+     y-8-78554fffbc-jzr97  cpu  85.4%   mem  16.9%   (13671m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  16.0%   (13600m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  17.1%   (13559m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.6%   mem  16.2%   (13542m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.5%   mem  15.9%   (13519m)
+     y-1-5cd957b969-bqxjc  cpu  84.2%   mem  17.2%   (13469m)
+     y-2-86cbc8dfdc-2lcsh  cpu  82.7%   mem  18.6%   (13233m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 20%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 89% mem 14%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 85% mem 15%  |  vmss00000j cpu 89% mem 13%  |  vmss00000k cpu 86% mem 14%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=45.7m   VUs 2500/2500   in-flight 1797 (peak 1910)   RPS 1.7   completed 3144   ⚠ SATURATED — designs queuing, not draining
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 606.7s / p95 1945.0s / max 2691.3s   (3254 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   531,208,601 total   burn 31,199,213/min  (9.5% of 330M TPM capacity)
+  TURNS    : t1 195k(2207)  t2 113k(751)  t3 81k(169)  t4 24k(14)  t5 4k(2)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  86.8%   mem  18.2%   (13881m)
+     ey-4-c58d97b99-g89gd  cpu  86.5%   mem  19.3%   (13834m)
+     y-5-549d6575c7-8twtb  cpu  86.2%   mem  18.3%   (13798m)
+     y-6-844c846b79-nclb7  cpu  86.1%   mem  16.4%   (13779m)
+     y-8-78554fffbc-jzr97  cpu  85.4%   mem  17.1%   (13664m)
+     -11-7c5c8558c7-tfpnh  cpu  84.9%   mem  17.3%   (13588m)
+     -10-6658b49d67-2pvkn  cpu  84.7%   mem  15.9%   (13557m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.7%   mem  16.0%   (13551m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.5%   mem  16.2%   (13525m)
+     y-1-5cd957b969-bqxjc  cpu  84.1%   mem  16.9%   (13458m)
+     y-2-86cbc8dfdc-2lcsh  cpu  82.7%   mem  18.3%   (13236m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 20%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 90% mem 15%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 90% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 85% mem 15%  |  vmss00000j cpu 89% mem 13%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 87% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=46.7m   VUs 2500/2500   in-flight 1739 (peak 1910)   RPS 1.8   completed 3248
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 616.9s / p95 1982.2s / max 2691.3s   (3362 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   604,045,776 total   burn 72,837,175/min  (22.1% of 330M TPM capacity)
+  TURNS    : t1 222k(2229)  t2 114k(800)  t3 85k(194)  t4 26k(22)  t5 4k(2)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     ey-4-c58d97b99-g89gd  cpu  87.1%   mem  19.4%   (13938m)
+     y-6-844c846b79-nclb7  cpu  86.3%   mem  16.8%   (13804m)
+     -12-647f4f67c5-wkhv2  cpu  85.9%   mem  19.3%   (13751m)
+     y-5-549d6575c7-8twtb  cpu  85.9%   mem  18.4%   (13747m)
+     y-8-78554fffbc-jzr97  cpu  85.8%   mem  17.1%   (13735m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  16.0%   (13610m)
+     -11-7c5c8558c7-tfpnh  cpu  84.9%   mem  17.2%   (13589m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.9%   mem  16.3%   (13583m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.8%   mem  16.3%   (13569m)
+     y-1-5cd957b969-bqxjc  cpu  84.4%   mem  17.0%   (13498m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.0%   mem  18.4%   (13443m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 21%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 13%  |  vmss00000d cpu 88% mem 14%  |  vmss00000e cpu 89% mem 15%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 86% mem 15%  |  vmss00000j cpu 89% mem 13%  |  vmss00000k cpu 86% mem 14%  |  vmss00000l cpu 88% mem 18%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=47.7m   VUs 2500/2500   in-flight 1696 (peak 1910)   RPS 1.6   completed 3362
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 628.1s / p95 2041.8s / max 2722.7s   (3477 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   637,016,658 total   burn 32,970,882/min  (10.0% of 330M TPM capacity)
+  TURNS    : t1 229k(2260)  t2 116k(859)  t3 87k(214)  t4 32k(26)  t5 4k(2)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     ey-4-c58d97b99-g89gd  cpu  86.6%   mem  19.3%   (13863m)
+     y-8-78554fffbc-jzr97  cpu  86.1%   mem  17.3%   (13781m)
+     y-5-549d6575c7-8twtb  cpu  86.0%   mem  18.4%   (13755m)
+     -12-647f4f67c5-wkhv2  cpu  85.7%   mem  19.7%   (13705m)
+     y-6-844c846b79-nclb7  cpu  85.6%   mem  16.5%   (13690m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  16.3%   (13605m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  17.3%   (13555m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.7%   mem  16.3%   (13551m)
+     y-1-5cd957b969-bqxjc  cpu  84.4%   mem  17.0%   (13503m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.2%   mem  18.7%   (13476m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.1%   mem  16.3%   (13461m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 21%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 89% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 87% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 88% mem 13%  |  vmss00000k cpu 87% mem 14%  |  vmss00000l cpu 88% mem 18%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=48.8m   VUs 2500/2500   in-flight 1647 (peak 1910)   RPS 2.2   completed 3467
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 639.3s / p95 2100.1s / max 2877.9s   (3587 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   693,773,266 total   burn 56,756,608/min  (17.2% of 330M TPM capacity)
+  TURNS    : t1 247k(2284)  t2 117k(920)  t3 88k(228)  t4 28k(30)  t5 4k(4)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 86%):
+     y-5-549d6575c7-8twtb  cpu  86.5%   mem  18.1%   (13840m)
+     ey-4-c58d97b99-g89gd  cpu  86.4%   mem  19.2%   (13818m)
+     y-6-844c846b79-nclb7  cpu  86.4%   mem  17.0%   (13827m)
+     -12-647f4f67c5-wkhv2  cpu  86.2%   mem  19.5%   (13785m)
+     y-8-78554fffbc-jzr97  cpu  85.9%   mem  17.1%   (13747m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.4%   mem  16.4%   (13660m)
+     -10-6658b49d67-2pvkn  cpu  84.9%   mem  16.4%   (13578m)
+     y-1-5cd957b969-bqxjc  cpu  84.7%   mem  17.3%   (13549m)
+     -11-7c5c8558c7-tfpnh  cpu  84.6%   mem  17.6%   (13541m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.2%   mem  16.1%   (13469m)
+     y-2-86cbc8dfdc-2lcsh  cpu  83.9%   mem  18.4%   (13425m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 21%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 6%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 88% mem 14%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 89% mem 13%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 86% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+
+────────────────────────────────────────────────────────────────────────
+  t=49.8m   VUs 2500/2500   in-flight 1591 (peak 1910)   RPS 2.2   completed 3574
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 648.3s / p95 2157.3s / max 2877.9s   (3699 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   712,422,378 total   burn 18,649,112/min  (5.7% of 330M TPM capacity)
+  TURNS    : t1 249k(2305)  t2 116k(978)  t3 89k(250)  t4 29k(36)  t5 4k(4)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-6-844c846b79-nclb7  cpu  87.4%   mem  16.7%   (13980m)
+     ey-4-c58d97b99-g89gd  cpu  87.2%   mem  19.5%   (13957m)
+     -12-647f4f67c5-wkhv2  cpu  86.8%   mem  20.0%   (13892m)
+     y-5-549d6575c7-8twtb  cpu  86.5%   mem  18.7%   (13845m)
+     y-8-78554fffbc-jzr97  cpu  86.1%   mem  17.1%   (13771m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.1%   mem  16.4%   (13622m)
+     -10-6658b49d67-2pvkn  cpu  84.9%   mem  16.4%   (13578m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  17.5%   (13572m)
+     y-1-5cd957b969-bqxjc  cpu  84.5%   mem  17.7%   (13522m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.4%   mem  19.2%   (13496m)
+     y-3-5978d4c6bf-fjnbh  cpu  83.8%   mem  16.4%   (13413m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 22%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 90% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 90% mem 13%  |  vmss00000k cpu 86% mem 15%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 86% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=50.8m   VUs 2500/2500   in-flight 1560 (peak 1910)   RPS 1.5   completed 3678
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.8s   | full p50 660.4s / p95 2180.1s / max 3028.3s   (3806 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   734,651,113 total   burn 22,228,735/min  (6.7% of 330M TPM capacity)
+  TURNS    : t1 250k(2322)  t2 120k(1041)  t3 92k(271)  t4 30k(39)  t5 4k(4)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  87.4%   mem  19.9%   (13976m)
+     y-6-844c846b79-nclb7  cpu  86.7%   mem  17.1%   (13874m)
+     y-5-549d6575c7-8twtb  cpu  86.6%   mem  18.6%   (13856m)
+     y-8-78554fffbc-jzr97  cpu  85.9%   mem  17.0%   (13744m)
+     ey-4-c58d97b99-g89gd  cpu  85.6%   mem  19.3%   (13693m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  16.4%   (13618m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.1%   mem  16.4%   (13613m)
+     y-1-5cd957b969-bqxjc  cpu  84.8%   mem  17.9%   (13574m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  17.5%   (13561m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.3%   mem  16.5%   (13491m)
+     y-2-86cbc8dfdc-2lcsh  cpu  83.9%   mem  19.2%   (13424m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 22%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 89% mem 14%  |  vmss00000e cpu 90% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 88% mem 15%  |  vmss00000h cpu 87% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 89% mem 13%  |  vmss00000k cpu 86% mem 15%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=51.9m   VUs 2500/2500   in-flight 1549 (peak 1910)   RPS 1.4   completed 3763
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 3.9s   | full p50 666.7s / p95 2206.6s / max 3106.5s   (3894 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   760,660,934 total   burn 26,009,821/min  (7.9% of 330M TPM capacity)
+  TURNS    : t1 256k(2335)  t2 121k(1083)  t3 96k(288)  t4 33k(50)  t5 4k(6)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  87.1%   mem  20.1%   (13943m)
+     ey-4-c58d97b99-g89gd  cpu  86.7%   mem  19.7%   (13865m)
+     y-6-844c846b79-nclb7  cpu  86.6%   mem  17.3%   (13863m)
+     y-5-549d6575c7-8twtb  cpu  86.3%   mem  18.4%   (13806m)
+     y-8-78554fffbc-jzr97  cpu  85.9%   mem  17.3%   (13750m)
+     -11-7c5c8558c7-tfpnh  cpu  85.1%   mem  17.6%   (13619m)
+     y-1-5cd957b969-bqxjc  cpu  85.0%   mem  18.2%   (13596m)
+     -10-6658b49d67-2pvkn  cpu  84.9%   mem  16.5%   (13591m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.9%   mem  16.5%   (13582m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.8%   mem  16.3%   (13567m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.5%   mem  19.4%   (13515m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 22%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 88% mem 14%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 89% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=52.9m   VUs 2500/2500   in-flight 1527 (peak 1910)   RPS 1.7   completed 3873
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.0s   | full p50 674.4s / p95 2237.9s / max 3106.5s   (4005 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   783,055,156 total   burn 22,394,222/min  (6.8% of 330M TPM capacity)
+  TURNS    : t1 257k(2356)  t2 127k(1138)  t3 97k(315)  t4 30k(55)  t5 18k(8)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-6-844c846b79-nclb7  cpu  86.8%   mem  17.5%   (13891m)
+     -12-647f4f67c5-wkhv2  cpu  86.6%   mem  20.6%   (13854m)
+     ey-4-c58d97b99-g89gd  cpu  86.5%   mem  19.6%   (13836m)
+     y-8-78554fffbc-jzr97  cpu  85.8%   mem  17.3%   (13735m)
+     y-5-549d6575c7-8twtb  cpu  85.5%   mem  18.8%   (13676m)
+     y-3-5978d4c6bf-fjnbh  cpu  85.4%   mem  16.6%   (13663m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  16.8%   (13601m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.0%   mem  16.1%   (13598m)
+     y-1-5cd957b969-bqxjc  cpu  84.9%   mem  18.0%   (13586m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  17.8%   (13554m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.3%   mem  19.6%   (13487m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 23%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 88% mem 13%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 90% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 88% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 90% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 88% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=53.9m   VUs 2500/2500   in-flight 1515 (peak 1910)   RPS 1.5   completed 3969
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.0s   | full p50 676.8s / p95 2250.6s / max 3106.5s   (4106 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   798,380,666 total   burn 15,325,510/min  (4.6% of 330M TPM capacity)
+  TURNS    : t1 258k(2367)  t2 128k(1177)  t3 95k(348)  t4 34k(67)  t5 16k(9)  t6 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-6-844c846b79-nclb7  cpu  87.3%   mem  17.6%   (13966m)
+     -12-647f4f67c5-wkhv2  cpu  86.8%   mem  20.3%   (13891m)
+     ey-4-c58d97b99-g89gd  cpu  86.8%   mem  19.6%   (13887m)
+     y-5-549d6575c7-8twtb  cpu  85.8%   mem  18.9%   (13728m)
+     y-8-78554fffbc-jzr97  cpu  85.6%   mem  17.4%   (13702m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.1%   mem  16.2%   (13615m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  17.0%   (13605m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.9%   mem  16.7%   (13585m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  17.9%   (13562m)
+     y-1-5cd957b969-bqxjc  cpu  84.4%   mem  18.5%   (13510m)
+     y-2-86cbc8dfdc-2lcsh  cpu  83.7%   mem  19.5%   (13385m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 23%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 14%  |  vmss00000d cpu 88% mem 14%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 86% mem 15%  |  vmss00000j cpu 90% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=55.0m   VUs 2500/2500   in-flight 1521 (peak 1910)   RPS 1.5   completed 4055
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.0s   | full p50 678.7s / p95 2271.9s / max 3106.5s   (4199 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   811,876,418 total   burn 13,495,752/min  (4.1% of 330M TPM capacity)
+  TURNS    : t1 259k(2376)  t2 129k(1221)  t3 95k(371)  t4 35k(73)  t5 13k(12)  t6 4k(2)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-6-844c846b79-nclb7  cpu  87.3%   mem  17.6%   (13968m)
+     ey-4-c58d97b99-g89gd  cpu  86.6%   mem  20.1%   (13850m)
+     -12-647f4f67c5-wkhv2  cpu  86.5%   mem  20.5%   (13841m)
+     y-5-549d6575c7-8twtb  cpu  85.7%   mem  19.0%   (13718m)
+     y-8-78554fffbc-jzr97  cpu  85.7%   mem  17.4%   (13707m)
+     -10-6658b49d67-2pvkn  cpu  85.1%   mem  17.0%   (13622m)
+     y-3-5978d4c6bf-fjnbh  cpu  85.0%   mem  16.7%   (13608m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  18.0%   (13572m)
+     y-1-5cd957b969-bqxjc  cpu  84.7%   mem  18.5%   (13553m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  84.7%   mem  16.2%   (13555m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.6%   mem  19.7%   (13529m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 23%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 87% mem 13%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 88% mem 15%  |  vmss00000h cpu 86% mem 14%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 90% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 88% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=56.0m   VUs 2500/2500   in-flight 1554 (peak 1910)   RPS 1.0   completed 4125
+  p50 0s  p95 2s  p99 2s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.0s   | full p50 679.9s / p95 2282.9s / max 3106.5s   (4273 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   822,509,740 total   burn 10,633,322/min  (3.2% of 330M TPM capacity)
+  TURNS    : t1 259k(2385)  t2 130k(1247)  t3 97k(392)  t4 39k(84)  t5 12k(14)  t6 4k(3)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     y-6-844c846b79-nclb7  cpu  87.1%   mem  17.7%   (13934m)
+     -12-647f4f67c5-wkhv2  cpu  86.8%   mem  20.6%   (13892m)
+     ey-4-c58d97b99-g89gd  cpu  86.6%   mem  20.1%   (13859m)
+     y-5-549d6575c7-8twtb  cpu  85.9%   mem  19.1%   (13747m)
+     y-8-78554fffbc-jzr97  cpu  85.6%   mem  17.7%   (13698m)
+     y-3-5978d4c6bf-fjnbh  cpu  85.3%   mem  16.9%   (13642m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  17.2%   (13605m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.0%   mem  16.3%   (13608m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  18.2%   (13548m)
+     y-1-5cd957b969-bqxjc  cpu  84.6%   mem  18.6%   (13535m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.6%   mem  20.2%   (13536m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 24%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 14%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 89% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 15%  |  vmss00000h cpu 86% mem 15%  |  vmss00000i cpu 87% mem 15%  |  vmss00000j cpu 89% mem 14%  |  vmss00000k cpu 86% mem 15%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 87% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=57.0m   VUs 2500/2500   in-flight 1580 (peak 1910)   RPS 0.7   completed 4187
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.1s   | full p50 680.6s / p95 2288.2s / max 3106.5s   (4343 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   850,404,036 total   burn 27,894,296/min  (8.5% of 330M TPM capacity)
+  TURNS    : t1 268k(2391)  t2 130k(1268)  t3 97k(414)  t4 43k(95)  t5 11k(15)  t6 4k(3)  t7 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  87.1%   mem  20.7%   (13932m)
+     ey-4-c58d97b99-g89gd  cpu  86.9%   mem  20.3%   (13911m)
+     y-6-844c846b79-nclb7  cpu  86.8%   mem  17.9%   (13884m)
+     y-5-549d6575c7-8twtb  cpu  86.0%   mem  19.0%   (13754m)
+     y-8-78554fffbc-jzr97  cpu  86.0%   mem  17.7%   (13766m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.4%   mem  16.4%   (13660m)
+     y-3-5978d4c6bf-fjnbh  cpu  85.3%   mem  16.9%   (13643m)
+     -11-7c5c8558c7-tfpnh  cpu  85.1%   mem  18.1%   (13615m)
+     -10-6658b49d67-2pvkn  cpu  84.9%   mem  17.1%   (13580m)
+     y-1-5cd957b969-bqxjc  cpu  84.6%   mem  18.9%   (13534m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.4%   mem  20.5%   (13499m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 24%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 6%  |  vmss00000c cpu 88% mem 14%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 90% mem 16%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 89% mem 16%  |  vmss00000h cpu 86% mem 15%  |  vmss00000i cpu 87% mem 16%  |  vmss00000j cpu 89% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 88% mem 19%  |  vmss00000m cpu 88% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=58.1m   VUs 2500/2500   in-flight 1632 (peak 1910)   RPS 0.7   completed 4231
+  p50 0s  p95 0s  p99 0s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.1s   | full p50 679.5s / p95 2298.2s / max 3329.3s   (4387 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   854,503,007 total   burn 4,098,971/min  (1.2% of 330M TPM capacity)
+  TURNS    : t1 268k(2394)  t2 129k(1282)  t3 96k(430)  t4 42k(105)  t5 11k(16)  t6 4k(3)  t7 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  87.1%   mem  20.6%   (13933m)
+     y-6-844c846b79-nclb7  cpu  86.7%   mem  17.7%   (13873m)
+     ey-4-c58d97b99-g89gd  cpu  86.4%   mem  20.5%   (13826m)
+     y-5-549d6575c7-8twtb  cpu  86.2%   mem  19.2%   (13797m)
+     y-8-78554fffbc-jzr97  cpu  85.9%   mem  18.2%   (13748m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.4%   mem  16.6%   (13658m)
+     -10-6658b49d67-2pvkn  cpu  85.0%   mem  17.3%   (13596m)
+     -11-7c5c8558c7-tfpnh  cpu  85.0%   mem  18.2%   (13592m)
+     y-1-5cd957b969-bqxjc  cpu  84.7%   mem  19.0%   (13551m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.6%   mem  20.8%   (13542m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.6%   mem  17.2%   (13540m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 25%  |  vmss00000a cpu 5% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 5% mem 5%  |  vmss00000c cpu 88% mem 14%  |  vmss00000d cpu 89% mem 15%  |  vmss00000e cpu 90% mem 16%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 16%  |  vmss00000h cpu 86% mem 15%  |  vmss00000i cpu 88% mem 16%  |  vmss00000j cpu 89% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 89% mem 19%  |  vmss00000m cpu 87% mem 14%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=59.1m   VUs 2500/2500   in-flight 1666 (peak 1910)   RPS 0.8   completed 4292
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.1s   | full p50 679.5s / p95 2310.1s / max 3329.3s   (4454 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   863,975,360 total   burn 9,472,353/min  (2.9% of 330M TPM capacity)
+  TURNS    : t1 268k(2397)  t2 131k(1301)  t3 96k(455)  t4 40k(116)  t5 10k(18)  t6 4k(4)  t7 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  86.6%   mem  20.8%   (13848m)
+     ey-4-c58d97b99-g89gd  cpu  86.4%   mem  20.6%   (13827m)
+     y-6-844c846b79-nclb7  cpu  86.4%   mem  18.1%   (13830m)
+     y-8-78554fffbc-jzr97  cpu  86.4%   mem  18.2%   (13829m)
+     y-5-549d6575c7-8twtb  cpu  86.1%   mem  19.1%   (13774m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.7%   mem  16.7%   (13707m)
+     -10-6658b49d67-2pvkn  cpu  85.2%   mem  17.5%   (13632m)
+     y-3-5978d4c6bf-fjnbh  cpu  84.9%   mem  17.2%   (13586m)
+     y-1-5cd957b969-bqxjc  cpu  84.8%   mem  19.2%   (13575m)
+     -11-7c5c8558c7-tfpnh  cpu  84.7%   mem  18.3%   (13557m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.7%   mem  21.0%   (13555m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 26%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 4% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 89% mem 14%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 89% mem 17%  |  vmss00000f cpu 0% mem 1%  |  vmss00000g cpu 88% mem 16%  |  vmss00000h cpu 86% mem 15%  |  vmss00000i cpu 88% mem 16%  |  vmss00000j cpu 89% mem 14%  |  vmss00000k cpu 86% mem 15%  |  vmss00000l cpu 89% mem 20%  |  vmss00000m cpu 87% mem 13%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+
+────────────────────────────────────────────────────────────────────────
+  t=60.2m   VUs 2500/2500   in-flight 1690 (peak 1910)   RPS 1.5   completed 4354
+  p50 0s  p95 1s  p99 1s   err 0.0%   (aggregate — dominated by fast login GETs; see DESIGN below)
+  DESIGN   : TTFT p50 0.4s / p95 4.1s   | full p50 679.0s / p95 2312.4s / max 3329.3s   (4521 designs)
+────────────────────────────────────────────────────────────────────────
+  TOKENS   :   873,620,852 total   burn 9,645,492/min  (2.9% of 330M TPM capacity)
+  TURNS    : t1 269k(2400)  t2 132k(1326)  t3 98k(474)  t4 40k(128)  t5 14k(21)  t6 4k(4)  t7 4k(1)
+  429s     : 0 total from 0 users
+  BACKEND  (11 pods, peak CPU 87%):
+     -12-647f4f67c5-wkhv2  cpu  87.0%   mem  20.9%   (13916m)
+     ey-4-c58d97b99-g89gd  cpu  86.5%   mem  20.8%   (13841m)
+     y-6-844c846b79-nclb7  cpu  86.5%   mem  18.0%   (13845m)
+     y-8-78554fffbc-jzr97  cpu  85.8%   mem  18.2%   (13725m)
+     y-7-7fbdf7bd6f-hd9v8  cpu  85.6%   mem  16.7%   (13698m)
+     y-5-549d6575c7-8twtb  cpu  85.4%   mem  19.2%   (13659m)
+     y-3-5978d4c6bf-fjnbh  cpu  85.0%   mem  17.3%   (13596m)
+     y-1-5cd957b969-bqxjc  cpu  84.9%   mem  19.5%   (13586m)
+     -11-7c5c8558c7-tfpnh  cpu  84.8%   mem  18.4%   (13572m)
+     -10-6658b49d67-2pvkn  cpu  84.6%   mem  17.6%   (13534m)
+     y-2-86cbc8dfdc-2lcsh  cpu  84.2%   mem  21.3%   (13473m)
+  FRONTEND (6 UI pods):
+     ent-5674d5d9d9-bx7n5  cpu   0.1%   mem   4.2%   (1m)
+     ent-5674d5d9d9-f8z7x  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-gqlql  cpu   0.1%   mem   4.9%   (1m)
+     ent-5674d5d9d9-krdfd  cpu   0.1%   mem   3.8%   (1m)
+     ent-5674d5d9d9-n8bml  cpu   0.1%   mem   3.9%   (1m)
+     ent-5674d5d9d9-ss4ms  cpu   0.1%   mem   3.7%   (1m)
+  PER-KEY  : n/a (Azure Monitor unavailable — client token total is authoritative)
+  NODES    : vmss000001 cpu 2% mem 27%  |  vmss00000a cpu 4% mem 7%  |  vmss00000b cpu 5% mem 7%  |  vmss00000c cpu 4% mem 5%  |  vmss00000c cpu 88% mem 14%  |  vmss00000d cpu 88% mem 15%  |  vmss00000e cpu 89% mem 17%  |  vmss00000f cpu 1% mem 1%  |  vmss00000g cpu 89% mem 16%  |  vmss00000h cpu 86% mem 15%  |  vmss00000i cpu 87% mem 16%  |  vmss00000j cpu 88% mem 14%  |  vmss00000k cpu 87% mem 15%  |  vmss00000l cpu 88% mem 20%  |  vmss00000m cpu 87% mem 14%  |  vmss00000n cpu 88% mem 13%
+  ERRORS   :
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): turn 2 → 0: 
+     [   1] POST /api/v1/agent_network_designer/streaming_chat (turn 2+): empty stream body
+WARNING:root:CPU usage above 90%! This may constrain your throughput and may even give inconsistent response time measurements! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
+WARNING:locust.runners:CPU usage was too high at some point during the test! See https://docs.locust.io/en/stable/running-distributed.html for how to distribute the load over multiple CPU cores or machines
+
+========================================================================
+  RESULT — hackathon end-to-end test
+========================================================================
+  Peak concurrent VUs   : 2500        Peak in-flight designs : 1910
+  Total requests        : 9,530   success 100.0%   (2 failed)
+  Designs COMPLETED     : 4360   still in-flight at end: 0
+  TOKENS  in 841,498,398 + out 33,086,988 = 874,585,386 total
+  BURN    ~ 14,354,641 tok/min  (4.3% of 330M TPM capacity — tokens are NOT the bottleneck)
+  COST    ~ $146.08  (gpt-4o-mini)
+  RATE LIMIT (429)      : 0 total from 0 users   (abuse-guard; normal users pace under 1/30s)
+  LATENCY (aggregate, login-diluted)  p50 0s  p95 0s  p99 1s
+  DESIGN LATENCY (the real UX)  TTFT p50 0.4s / p95 4.2s  | full design p50 679.0s / p95 2313.5s / p99 2763.3s / max 3331.4s   (4528 designs)
+  PER-TURN escalation   : t1 269k  t2 132k  t3 98k  t4 40k  t5 13k  t6 4k  t7 4k   (turns 4-6 project the 90-min token total)
+========================================================================
+
+  Report saved → /tmp/loadtest/reports/hackathon_test_20260709_012306.json
+
+Exception ignored in: <function _removeHandlerRef at 0x7f004a7b7380>
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/logging/__init__.py", line 893, in _removeHandlerRef
+  File "/usr/local/lib/python3.13/threading.py", line 202, in acquire
+  File "/usr/local/neuro-san/.local/lib/python3.13/site-packages/gevent/thread.py", line 81, in get_ident
+RuntimeError: greenlet is being finalized

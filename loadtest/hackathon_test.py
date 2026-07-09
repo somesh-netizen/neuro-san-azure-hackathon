@@ -55,6 +55,7 @@ from metrics import (
     get_per_key_tpm,
     get_pod_usage,
     in_flight,
+    latency_tracker,
     rate_limit_tracker,
     token_tracker,
     turn_tracker,
@@ -103,6 +104,7 @@ def snapshot(runner, args, elapsed_min, prev_tokens, peak_vu):
     per_key = get_per_key_tpm(AZURE_OPENAI_RESOURCES)
     rl = rate_limit_tracker.snapshot()
     turns = turn_tracker.snapshot()
+    lat = latency_tracker.snapshot()
 
     # error breakdown (cumulative)
     fails: dict[str, int] = {}
@@ -121,7 +123,10 @@ def snapshot(runner, args, elapsed_min, prev_tokens, peak_vu):
           f"   RPS {rps:.1f}   completed {completed}"
           + ("   ⚠ SATURATED — designs queuing, not draining" if saturated else ""))
     print(f"  p50 {p50/1000:.0f}s  p95 {p95/1000:.0f}s  p99 {p99/1000:.0f}s"
-          f"   err {err:.1f}%   (latency reflects COMPLETED reqs; queued designs not counted)")
+          f"   err {err:.1f}%   (aggregate — dominated by fast login GETs; see DESIGN below)")
+    print(f"  DESIGN   : TTFT p50 {lat['ttft_p50']}s / p95 {lat['ttft_p95']}s"
+          f"   | full p50 {lat['design_p50']}s / p95 {lat['design_p95']}s / max {lat['design_max']}s"
+          f"   ({lat['design_count']} designs)")
     print(bar)
     print(f"  TOKENS   : {used:>13,} total   burn {burn:,.0f}/min"
           f"  ({burn / TOKEN_QUOTA_TOTAL * 100:.1f}% of {TOKEN_QUOTA_TOTAL // 1_000_000}M TPM capacity)")
@@ -199,6 +204,7 @@ def main():
     total = runner.stats.total
     rl = rate_limit_tracker.snapshot()
     turns = turn_tracker.snapshot()
+    lat = latency_tracker.snapshot()
     elapsed_min = (time.monotonic() - start) / 60
     success_pct = (1 - total.fail_ratio) * 100
     completed = sum(d["count"] for d in turns.values()) if turns else 0
@@ -222,9 +228,12 @@ def main():
     print(f"  COST    ~ ${cost['cost_total_usd']:.2f}  ({OPENAI_MODEL})")
     print(f"  RATE LIMIT (429)      : {rl['total_429']} total from {rl['unique_users']} users"
           f"   (abuse-guard; normal users pace under 1/30s)")
-    print(f"  LATENCY  p50 {total.median_response_time/1000:.0f}s"
+    print(f"  LATENCY (aggregate, login-diluted)  p50 {total.median_response_time/1000:.0f}s"
           f"  p95 {(total.get_response_time_percentile(0.95) or 0)/1000:.0f}s"
           f"  p99 {(total.get_response_time_percentile(0.99) or 0)/1000:.0f}s")
+    print(f"  DESIGN LATENCY (the real UX)  TTFT p50 {lat['ttft_p50']}s / p95 {lat['ttft_p95']}s"
+          f"  | full design p50 {lat['design_p50']}s / p95 {lat['design_p95']}s"
+          f" / p99 {lat['design_p99']}s / max {lat['design_max']}s   ({lat['design_count']} designs)")
     if turns:
         esc = "  ".join(f"t{n} {d['avg_total']//1000}k" for n, d in sorted(turns.items()))
         print(f"  PER-TURN escalation   : {esc}   (turns 4-6 project the 90-min token total)")
@@ -244,6 +253,7 @@ def main():
             "p50_ms": total.median_response_time,
             "p95_ms": total.get_response_time_percentile(0.95),
             "p99_ms": total.get_response_time_percentile(0.99),
+            "design_latency": lat,
         },
     }
     path = REPORTS_DIR / f"hackathon_test_{ts}.json"
